@@ -1,0 +1,29 @@
+if you have the book, supplies, and incomplete transcription, 
+you can take some time to use some supplies and continue your transcription.
+if you have the book, supplies, and complete transcription, 
+you can take some time to proofread your transcript and make corrections with some supplies.
+
+source: completed, proofread transcript || original || facsimile
+
+translation:
+
+with a completed, proofread transcript, or an original, or facsimile, you can create a translation as long as you know the language of the source and the translated language.  
+
+If there is an error rate with the source trans
+TBD
+
+
+Transcription mechanics:
+if you are starting the process, it is assumed you have the original, ink, pen, paper, and the transcript in some unfinished state.
+
+Begin Transcript process
+
+choose book 
+	from personal library
+	from inventory
+check if there is a transcript in progress
+	if so, ask if player wants to continue transcript
+	else, ask if player wants to start a new transcript
+
+
+

@@ -1,0 +1,16 @@
+books.csv obtained via kaggle on or about 4/15/2021: https://www.kaggle.com/jealousleopard/goodreadsbooks 
+full credit to https://www.kaggle.com/jealousleopard/
+
+titles:
+from books.csv, via kaggle
+https://en.wikipedia.org/wiki/Publishers_Weekly_lists_of_bestselling_novels_in_the_United_States (modified)
+
+authors:
+from books.csv, via kaggle
+https://en.wikipedia.org/wiki/Publishers_Weekly_lists_of_bestselling_novels_in_the_United_States (modified)
+
+
+
+genres:
+https://en.wikipedia.org/wiki/List_of_writing_genres (modified)
+
