@@ -3,14 +3,21 @@ import re, random
 import markovify 
 import book 
 
+library = []
+
+
 def describe_book(book):
-	print("This %s is titled %s" % (book["Type"], book["Title"])) 
+	print("*********")
+	print("This %s is titled \"%s\". It is written by %s." % (book["Type"], book["Title"], book["Author"]))
+	print("It is a popular work in the %s genre and consists of %s words." % (book["Genre"], book["Word Count"]))
+	print("The price for completing the transaction is %s dolaridoos." % (book["Transcript Reward"]))
+	print("*********")
 	pass
 
-for i in range(10):
-	new_book = book.create_book()
-	for k, v in new_book.items():
-		print("%s : %s" % (k,v))
-	print("***********")
-	#print(book.gen_author())
-	#print(make_sentence(genre_model))
+def populate_library(library):
+	for i in range(10):
+		library.append(book.create_book())
+
+populate_library(library)
+for i in library:
+	describe_book(i)

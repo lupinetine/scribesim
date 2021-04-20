@@ -44,7 +44,7 @@ def initialize_models():
 #### book functions ####
 def create_book():
 	word_count = gen_words()
-	return {'Title' : gen_title(), 'Author' : gen_author(), 'Genre' : gen_genre(), 'Word Count' : word_count, 'Type' : gen_type(word_count) }
+	return {'Title' : gen_title(), 'Author' : gen_author(), 'Genre' : gen_genre(), 'Word Count' : word_count, 'Type' : gen_type(word_count), 'Transcript Reward' : gen_transcript_price() }
 	
 def gen_title():
 	return make_short_sentence(model["title"], 45)
@@ -61,7 +61,7 @@ def gen_genre():
 		genre_array.remove("literature")
 	elif "story" in genre_array:	
 		genre_array.remove("story")
-	return " ".join(genre_array)
+	return " ".join(genre_array).title()
 
 def gen_words():
 	return random.randrange(190, 1300)
@@ -83,7 +83,9 @@ def gen_type(num_words):
 def gen_author():
 	return make_short_sentence(model["author"], 30)
 
-model = initialize_models()	
+def gen_transcript_price():
+	return random.randrange(10, 90)
 
+model = initialize_models()	
 
 
