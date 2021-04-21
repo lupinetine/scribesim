@@ -25,5 +25,16 @@ check if there is a transcript in progress
 	if so, ask if player wants to continue transcript
 	else, ask if player wants to start a new transcript
 
+Check supplies
+	Must have at least
+		1 pen
+		1 ml of ink
+		1 sheet of paper
+
+Move sheet to workbench, adds 2 sides to use
+Use pen to write down words on the side until it is full or ink runs out, 200 words hardcoded for the moment per page, 5 pages per ml so 1000 words per ml of ink
+After writing, add completed number of words to the transcript object and determine how many words are errors, store this error number in the object but do not show the player.  Decrement remaining number of words remaining as well.  
+
+
 
 

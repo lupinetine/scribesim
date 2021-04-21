@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"player",
+				"player_name"
+			],
+			[
 				"make",
 				"make_short_sentence"
 			],
@@ -27,25 +31,7 @@
 			"file": "BookGame.py",
 			"settings":
 			{
-				"buffer_size": 248,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "book.py",
-			"settings":
-			{
-				"buffer_size": 2332,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "genres.list",
-			"settings":
-			{
-				"buffer_size": 12433,
+				"buffer_size": 1566,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -54,7 +40,7 @@
 			"file": "transcription_process",
 			"settings":
 			{
-				"buffer_size": 993,
+				"buffer_size": 1514,
 				"encoding": "UTF-8",
 				"line_ending": "Windows"
 			}
@@ -65,33 +51,6 @@
 			{
 				"buffer_size": 384,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "citations",
-			"settings":
-			{
-				"buffer_size": 526,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "book_titles.list",
-			"settings":
-			{
-				"buffer_size": 408916,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "authors.core",
-			"settings":
-			{
-				"buffer_size": 143478,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
 			}
 		}
 	],
@@ -123,16 +82,16 @@
 		"selected_items":
 		[
 			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
 				"insta",
 				"Package Control: Install Package"
 			],
 			[
 				"install",
 				"Package Control: Install Package"
-			],
-			[
-				"packa",
-				"Install Package Control"
 			],
 			[
 				"inst",
@@ -159,10 +118,18 @@
 	},
 	"expanded_folders":
 	[
-		"/mnt/external/Programming/BookGame"
+		"/home/aaren/BookGame"
 	],
 	"file_history":
 	[
+		"/home/aaren/BookGame/book.py",
+		"/home/aaren/BookGame/authors.core",
+		"/home/aaren/BookGame/genres.list",
+		"/home/aaren/BookGame/authors.list",
+		"/home/aaren/BookGame/GUTINDEX.csv",
+		"/home/aaren/BookGame/books.output",
+		"/home/aaren/BookGame/citations",
+		"/home/aaren/BookGame/book_titles.list",
 		"/mnt/external/Programming/BookGame/book.py",
 		"/mnt/external/Programming/BookGame/ink_notes",
 		"/mnt/external/Programming/BookGame/genres.list",
@@ -223,7 +190,7 @@
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 55.0
 	},
 	"find_in_files":
 	{
@@ -237,6 +204,14 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"()\n",
+			"(^\\w+.*(?=, by)), by (.*(?=\\d{4}))\\d+$",
+			"(^\\w+.*(?=, by)), by (.*(?=\\d{4}))",
+			"(^\\w+.*(?=, by)), by (.*(?=\\d{5})).*",
+			"\\s*\\d{5}$\\n( \\w)",
+			"\\W*\\d{5}$\\n( \\w)",
+			"\\W*\\d{5}$\\n",
+			"(^\\w+.*(?=, by)), by (.*(?=\\d{5})).*",
 			"^(\\w*)$",
 			"^(\\w)*$",
 			"^\\w*$",
@@ -289,6 +264,11 @@
 		"regex": true,
 		"replace_history":
 		[
+			"$1;$2",
+			"$1,$2",
+			"$1",
+			"",
+			"$1;$2",
 			"$1\\n$1 in popular culture",
 			"science-fiction",
 			"",
@@ -341,24 +321,35 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 248,
+						"buffer_size": 1566,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								144,
-								144
+								1453,
+								1453
 							]
 						],
 						"settings":
 						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric, meta.interpolated.format.fstring"
+								}
+							],
 							"syntax": "Packages/Python/Python.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 761.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -366,76 +357,19 @@
 				},
 				{
 					"buffer": 1,
-					"file": "book.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2332,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1401,
-								1401
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 714.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "genres.list",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12433,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								11916,
-								11916
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 10458.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "transcription_process",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 993,
+						"buffer_size": 1514,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								991,
-								991
+								1510,
+								1510
 							]
 						],
 						"settings":
@@ -443,14 +377,14 @@
 							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 200.0,
+						"translation.y": 353.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 2,
 					"file": "ink_notes",
 					"semi_transient": false,
 					"settings":
@@ -474,91 +408,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "citations",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 526,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								526,
-								526
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "book_titles.list",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 408916,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								40,
-								40
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 190425.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "authors.core",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 143478,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								143478,
-								143478
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 161534.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -607,7 +457,7 @@
 	"project": "BookGame.sublime-project",
 	"replace":
 	{
-		"height": 70.0
+		"height": 102.0
 	},
 	"save_all_on_build": true,
 	"select_file":

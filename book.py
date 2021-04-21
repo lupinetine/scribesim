@@ -1,6 +1,6 @@
 #import libtcod as tcod
-import re, random
-import markovify 
+import re, random, markovify
+import tracery
 
 '''
 All the markov models are in newline format
@@ -21,7 +21,7 @@ def make_short_sentence(model, length, test_output=True):
 def make_sentence(model, test_output=True):
 	sentence = None
 	while sentence == None:
-		sentence = model.make_sentence(test_output=test_output)
+		sentence = model.make_sentence(test_utput=test_output)
 	return sentence
 
 def scramble_authors():
