@@ -87,5 +87,3 @@ def gen_transcript_price():
 	return random.randrange(10, 90)
 
 model = initialize_models()	
-
-
