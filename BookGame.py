@@ -14,9 +14,10 @@ player_name = base_class + "m-1 font-black bg-indigo-500 "
 header_base = base_class + "m-2 font-bold justify-center "
 
 grid_base = "grid auto-cols-auto "
-button_base = "m-3 text-purple font-bold rounded "
+button_base = "m-3 ring-4 ring-black-600 text-gray font-bold rounded "
+button_menu = button_base + " bg-blue-600 p-2 inline "
 
-header_class = grid_base + "ring ring-4 ring-indigo-600 ring-offset-4 "
+header_class = grid_base + "ring-4 ring-indigo-600 ring-offset-4 "
 blue_header = header_base + "bg-blue-500 "
 green_header = header_base + "bg-green-500 "
 red_header = header_base + "bg-red-500 "
@@ -71,38 +72,61 @@ def player_div_banner(stat, div, classes):
     )
     return new_div
 
-def mod_div(stat, banner, webpage):
-    new_div = jp.Div(
-        a=webpage,
-        classes=grid_base
-    )
 
-    change = jp.InputChangeOnly(
-        type='number',
-        a=new_div,
-        classes="w-1/4 rounded col-span-1 "
-    )
-    button = jp.Button(
-        a=new_div,
-        classes=button_base + "w-1/4 bg-red-600 "
-    )
-    button.to_change = 0
-    button.stat = stat
-    button.label = jp.P(
-        text=f'Change player {button.stat} by ',
-        a=button,
-        classes="inline "
-    )
-    button.amount = jp.P(
-        text=button.to_change,
-        a=button,
-        classes="inline "
-    )
-    button.banner = banner
-    button.on('click', set_stat_and_display)
-    change.button = button
-    change.on('change', set_change)
-    return new_div
+def create_menu_button(dest_div, button_text, display_area, click_function):
+    button = jp.Button(a=dest_div, classes=button_menu)
+    button.label = jp.P(a=button, text=button_text)
+    button.display = display_area
+    button.on('click', click_function)
+    return button
+
+
+def view_desk():
+     
+    pass
+
+
+def view_library():
+    pass
+
+
+def view_shop():
+    pass
+
+
+# def mod_div(stat, banner, webpage):
+#     new_div = jp.Div(
+#         a=webpage,
+#         classes=grid_base
+#     )
+
+#     change = jp.InputChangeOnly(
+#         type='number',
+#         a=new_div,
+#         classes="w-1/4 rounded col-span-1 "
+#     )
+#     button = jp.Button(
+#         a=new_div,
+#         classes=button_base + "w-1/4 bg-red-600 "
+#     )
+#     button.to_change = 0
+#     button.stat = stat
+#     button.label = jp.P(
+#         text=f'Change player {button.stat} by ',
+#         a=button,
+#         classes="inline "
+#     )
+#     button.amount = jp.P(
+#         text=button.to_change,
+#         a=button,
+#         classes="inline "
+#     )
+#     button.banner = banner
+#     button.on('click', set_stat_and_display)
+#     change.button = button
+#     change.on('change', set_change)
+#     return new_div
+
 
 def gamemenu():
     wp = jp.WebPage()
@@ -114,16 +138,31 @@ def gamemenu():
     )
     stamina_banner = player_div_banner("Stamina", header, red_header)
     money_banner = player_div_banner("Money", header, green_header)
-    time_banner = player_div_banner("Time", header, blue_header)
     snack_banner = player_div_banner("Snacks", header, pink_header)
-    button_area = jp.Div(a=wp, classes="ring-4 bg-pink-300 min-w-min")
-    desk_button = jp.Button(a=button_area,
-                            classes=button_base + " bg-blue-600 p-2 ")
-    desk_button.label = jp.P(a=desk_button, text='View Inventory')
-    money_div = mod_div("Money", money_banner, wp)
+    time_banner = player_div_banner("Time", header, blue_header)
+    button_area = jp.Div(a=wp, classes="ring-4 bg-pink-300 col-span-full ")
+    text_area = jp.Div(a=wp, classes="col-span-full")
+    text_area.button_div = jp.Div(a=text_area,
+                                  classes="bg-gray-400 overflow-x-auto ")
+    text_area.text_div = jp.Div(a=text_area,
+                                classes="bg-gray-400 overflow-x-auto ")
+    desk_button = create_menu_button(button_area,
+                                     'View Inventory',
+                                     text_area,
+                                     view_desk)
+    library_button = create_menu_button(button_area,
+                                        'View Library',
+                                        text_area,
+                                        view_library)
+    shop_button = create_menu_button(button_area,
+                                        'Visit Shop',
+                                        text_area,
+                                        view_shop)
+    # money_div = mod_div("Money", money_banner, wp)
 
     return wp
 
 
 player = pr.new_player()
 jp.justpy(gamemenu)
+ 
