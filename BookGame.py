@@ -5,16 +5,19 @@ import datetime
 import book
 import player as pr
 import justpy as jp
+import icecream as ic
 
 
 # CLASSES CSS #
 base_class = "text-white rounded text-center "
+base_class_dark = "text-indigo rounded text-left"
+
+library_display_class = "ring-4 bg-gray-300 col-span-auto "
+grid_base = "grid auto-cols-auto "
+button_base = "m-3 ring-4 ring-black-600 text-gray font-bold rounded "
 
 player_name = base_class + "m-1 font-black bg-indigo-500 "
 header_base = base_class + "m-2 font-bold justify-center "
-
-grid_base = "grid auto-cols-auto "
-button_base = "m-3 ring-4 ring-black-600 text-gray font-bold rounded "
 button_menu = button_base + " bg-blue-600 p-2 inline "
 
 header_grid = grid_base + "ring-4 ring-indigo-600 ring-offset-4 "
@@ -40,21 +43,20 @@ def buy_supplies(supply, quantity):
 
 def describe_book(self, msg):
     book = player['Library'][self.value]
+    self.text_div.title_line.text = ""
     self.title_line.text = (
         f"This {book['Type']} is titled \"{book['Title']}\". "
         f"It is written by {book['Author']}."
     )
-    self.desc_line = (
+    self.desc_line.text = (
         f"It is a popular work in the {book['Genre']} genre "
         f"and consists of {book['Word Count']} words."
     )
-    self.payout_line = (
-        f"The price for completing the transcript "
+    self.payout_line.text = (
+        f"The base price for completing the transcript "
         f"is {book['Transcript Reward']} money."
     )
-    pass
-
-
+    self.choose_book.label.text = f"Choose \"{book['Title']}\""
     pass
 
 
@@ -91,23 +93,33 @@ def player_div_banner(stat, div, classes):
     return new_div
 
 
-def create_menu_button(dest_div, button_text, display_area, click_function):
-    button = create_button(dest_div, button_text, click_function)
+def create_menu_button(
+    dest_div,
+    button_text,
+    display_area,
+    click_function,
+    button_classes=button_menu
+):
+    button = create_button(
+        dest_div,
+        button_text,
+        click_function,
+        button_classes
+    )
     button.display = display_area
     return button
 
 
-def create_button(dest_div, button_text, click_function):
-    button = create_empty_button(dest_div, button_text)
+def create_button(dest_div, button_text, click_function, button_classes=button_menu):
+    button = create_empty_button(dest_div, button_text, button_classes)
     button.on('click', click_function)
     return button
 
 
-def create_empty_button(dest_div, button_text):
-    button = jp.Button(a=dest_div, classes=button_menu)
+def create_empty_button(dest_div, button_text, button_classes=button_menu):
+    button = jp.Button(a=dest_div, classes=button_classes)
     button.label = jp.P(a=button, text=button_text)
     return button
-
 
 
 def desk_area(webpage, player):
@@ -144,25 +156,158 @@ def header_maker(webpage, header_class):
     return header
 
 
+def library_display_maker(webpage, lib_class):
+    library_display = jp.Div(
+        a=webpage,
+        classes=lib_class + "overflow-x-auto grid-row-1 "
+    )
+    library_display.text_div = jp.Div(
+        a=webpage,
+        classes=lib_class + "border-5 border-black "
+    )
+    library_display.text_div.title_line = jp.Div(
+        a=library_display.text_div,
+        classes=base_class_dark
+    )
+    library_display.text_div.desc_line = jp.Div(
+        a=library_display.text_div,
+        classes=base_class_dark
+    )
+    library_display.text_div.payout_line = jp.Div(
+        a=library_display.text_div,
+        classes=base_class_dark
+    )
+    library_display.text_div.choose_book = create_button(
+        library_display.text_div,
+        "Choose a Book to Start",
+        start_transcription
+    )
+
+    for i in range(len(player['Library'])):
+        library_display.i = create_button(library_display,
+                                          player['Library'][i]['Title'],
+                                          describe_book)
+        library_display.i.value = i
+        library_display.i.text_div = library_display.text_div
+        library_display.i.title_line = library_display.text_div.title_line
+        library_display.i.desc_line = library_display.text_div.desc_line
+        library_display.i.payout_line = library_display.text_div.payout_line
+        library_display.i.choose_book = library_display.text_div.choose_book
+    return library_display
+
+
+def transcribe_menu(self, msg):
+    self.display.delete()
+    pass
+
+
+def start_transcription():
+    pass
+
+
+def can_afford(amount):
+    if player['Money'] >= amount:
+        return True
+    else:
+        return False
+
+
+def buy_snack(self, msg):
+    if can_afford(self.cost):
+        player[self.stat] += self.qty
+        player['Money'] -= self.cost
+        self.header.snack_banner.label.text = f'{self.stat}: {player[self.stat]}'
+        self.header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
+    pass
+
+
+def set_qty_label(stat):
+    if stat == 'Paper':
+        return 'Sheets'
+    if stat == 'Ink':
+        return 'Milliliters'
+    pass
+
+
+def buy_desk_item(self, msg):
+    qty_label = set_qty_label(self.stat)
+    if can_afford(self.cost):
+        player['Desk'][self.stat][qty_label] += self.qty
+        player['Money'] -= self.cost
+        self.header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
+        for i in self.desk.components:
+            if qty_label in i.text:
+                i.text = f'{qty_label}: {player["Desk"][self.stat][qty_label]}'
+    pass
+
+
+def eat_snack(self, msg):
+    if player['Snacks'] > 0:
+        player['Snacks'] += -1
+        player['Stamina'] += 25
+        self.header.snack_banner.label.text = f'Snacks: {player["Snacks"]}'
+        self.header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
+    pass
+
+
+def buy_menu_button_maker(div, text, function, stat, cost, qty, header, desk=None):
+    button = create_button(div, text, function)
+    button.stat = stat
+    button.header = header
+    button.cost = cost
+    button.qty = qty
+    button.desk = desk
+    return button
+
+
+def buy_menu(self, msg):
+    self.display.delete()
+    self.display.buy_snacks = buy_menu_button_maker(
+        self.display,
+        "Buy Snacks @ $5/each",
+        buy_snack,
+        "Snacks",
+        5,
+        1,
+        self.header
+    )
+    self.display.buy_paper = buy_menu_button_maker(
+        self.display,
+        "Buy Paper @ $10/100 sheets",
+        buy_desk_item,
+        "Paper",
+        10,
+        100,
+        self.header,
+        self.desk.paper
+    )
+    self.display.buy_ink = buy_menu_button_maker(
+        self.display,
+        "Buy Ink @ $5/50ml",
+        buy_desk_item,
+        "Ink",
+        5,
+        50,
+        self.header,
+        self.desk.ink
+    )
+    pass
+
+
 def gamemenu():
-    wp = jp.WebPage()
+    wp = jp.WebPage(delete_flag=True)
     header = header_maker(wp, header_grid)
     desk_display = desk_area(wp, player)
-    library_display = jp.Div(a=wp, classes="ring-4 bg-gray-300 col-span-full ",)
-    library_display.text_div = jp.Div(a=wp, classes="ring-4 bg-gray-300 col-span-full ")
-    library_display.text_div.title_line = jp.Div(a=library_display.text_div, classes=base_class)
-    library_display.text_div.desc_line = jp.Div(a=library_display.text_div, classes=base_class)
-    library_display.text_div.payout_line = jp.Div(a=library_display.text_div, classes=base_class)
-    library_display.book1 = create_button(library_display,
-                                          player['Library'][0]['Title'],
-                                          describe_book)
-    library_display.book1.value = 0
-    library_display.book1.text_div = library_display.text_div
-    library_display.book1.title_line = library_display.text_div.title_line
-    library_display.book1.desc_line = library_display.text_div.desc_line
-    library_display.book1.payout_line = library_display.text_div.payout_line
-    button_area = jp.Div(a=wp, classes="ring-4 bg-pink-300 col-span-full ")
-    text_area = jp.Div(a=wp, classes="col-span-full ")
+    library_display = library_display_maker(wp, library_display_class)
+    main_desk = jp.Div(a=wp, classes=grid_base)
+    main_desk.button_area = jp.Div(a=main_desk, classes="ring-4 bg-pink-300 col-span-full ")
+    main_desk.text_area = jp.Div(a=main_desk, classes="col-span-full ")
+    main_desk.button_area.buy = create_menu_button(main_desk.button_area, "Buy Supplies", main_desk.text_area, buy_menu)    
+    main_desk.button_area.buy.header = header
+    main_desk.button_area.buy.desk = desk_display
+    main_desk.button_area.transcribe = create_menu_button(main_desk.button_area, "Transcribe New Book", main_desk.text_area, transcribe_menu)    
+    main_desk.button_area.eat = create_menu_button(main_desk.button_area, "Eat Snack", main_desk.text_area, eat_snack)
+    main_desk.button_area.eat.header = header
     return wp
 
 

@@ -5,7 +5,7 @@ import book
 
 def populate_library():
     library = []
-    for i in range(10):
+    for i in range(9):
         library.append(book.create_book())
     return library
 
@@ -23,7 +23,7 @@ def new_player():
             'Ink': {
                 'Name': 'Black Ink',
                 'Words Per ml': 400,
-                'milliliters': 50
+                'Milliliters': 50
             },
             'Pen': {
                 'Name': 'Good Pen',
@@ -37,6 +37,7 @@ def new_player():
         'Stamina': 100,
         'Lit Speed': 150,
         'Skills': {
+            'Base WPM': 150,
             'Read': 2,
             'Write': 1
         }
