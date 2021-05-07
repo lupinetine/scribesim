@@ -65,7 +65,7 @@ def create_book():
 
 
 def gen_title():
-    return make_short_sentence(model["title"], 45)
+    return make_short_sentence(model["title"], 45).title()
 
 
 def gen_manuscript_title():
