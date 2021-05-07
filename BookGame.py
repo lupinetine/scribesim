@@ -3,22 +3,26 @@ import re
 import random
 import datetime
 import book
+import math
 import player as pr
 import justpy as jp
 import icecream as ic
 
+# GLOBALS #
+
 
 # CLASSES CSS #
 base_class = "text-white rounded text-center "
-base_class_dark = "text-indigo rounded text-left"
+base_class_dark = "text-indigo rounded text-center "
 
-library_display_class = "ring-4 bg-gray-300 col-span-auto "
+library_display_class = "grid grid-cols-3 divide-x bg-gray-300 col-span-auto "
 grid_base = "grid auto-cols-auto "
 button_base = "m-3 ring-4 ring-black-600 text-gray font-bold rounded "
 
 player_name = base_class + "m-1 font-black bg-indigo-500 "
 header_base = base_class + "m-2 font-bold justify-center "
-button_menu = button_base + " bg-blue-600 p-2 inline "
+header_base_dark = base_class_dark + "m-2 font-bold justify-center "
+button_menu = button_base + "bg-blue-600 p-2 inline "
 
 header_grid = grid_base + "ring-4 ring-indigo-600 ring-offset-4 "
 
@@ -34,71 +38,12 @@ red_header = header_base + "bg-red-500 "
 pink_header = header_base + "bg-pink-500 "
 
 
-def buy_supplies(supply, quantity):
-    print(f"Okay, going to the store and buying {supply}", end="")
-    print(f" for a total of {player['Desk'][supply] + quantity}.")
-    player['Desk'][supply] += quantity
-    pass
-
-
-def describe_book(self, msg):
-    book = player['Library'][self.value]
-    self.text_div.title_line.text = ""
-    self.title_line.text = (
-        f"This {book['Type']} is titled \"{book['Title']}\". "
-        f"It is written by {book['Author']}."
-    )
-    self.desc_line.text = (
-        f"It is a popular work in the {book['Genre']} genre "
-        f"and consists of {book['Word Count']} words."
-    )
-    self.payout_line.text = (
-        f"The base price for completing the transcript "
-        f"is {book['Transcript Reward']} money."
-    )
-    self.choose_book.label.text = f"Choose \"{book['Title']}\""
-    pass
-
-
-def set_stat(stat, amount):
-    if player[stat] + amount < 0:
-        player[stat] = 0
-    else:
-        player[stat] += amount
-    pass
-
-
-def set_change(self, msg):
-    self.button.amount.text = self.value
-    self.button.to_change = self.value
-    pass
-
-
-def set_stat_and_display(self, msg):
-    set_stat(self.stat, self.to_change)
-    self.banner.label.text = f'{self.stat}: {player[self.stat]}'
-    pass
-
-
-def player_div_banner(stat, div, classes):
-    new_div = jp.Div(
-        a=div,
-        classes=classes
-    )
-    new_div.label = jp.P(
-        text=f'{stat}: {player[stat]}',
-        a=new_div,
-        classes=classes + "justify-self-center "
-    )
-    return new_div
-
-
 def create_menu_button(
     dest_div,
     button_text,
     display_area,
     click_function,
-    button_classes=button_menu
+    button_classes=button_menu,
 ):
     button = create_button(
         dest_div,
@@ -123,6 +68,17 @@ def create_empty_button(dest_div, button_text, button_classes=button_menu):
 
 
 def desk_area(webpage, player):
+    def desk_item(desk_div, header_text, item_entry):
+        new_div = jp.Div(a=desk_div, classes=desk_item_header)
+        new_div.header = jp.P(a=new_div,
+                              classes=player_name,
+                              text=header_text)
+        for k, v in item_entry.items():
+            new_div.k = jp.P(a=new_div,
+                             classes=base_class,
+                             text=f'{k}: {v}')
+        return new_div
+
     new_div = jp.Div(a=webpage, classes="grid grid-cols-3 ")
     new_div.paper = desk_item(new_div, "Paper Tray", player['Desk']['Paper'])
     new_div.ink = desk_item(new_div, "Inkwell", player['Desk']['Ink'])
@@ -130,19 +86,18 @@ def desk_area(webpage, player):
     return new_div
 
 
-def desk_item(desk_div, header_text, item_entry):
-    new_div = jp.Div(a=desk_div, classes=desk_item_header)
-    new_div.header = jp.P(a=new_div,
-                          classes=player_name,
-                          text=header_text)
-    for k, v in item_entry.items():
-        new_div.k = jp.P(a=new_div,
-                         classes=base_class,
-                         text=f'{k}: {v}')
-    return new_div
-
-
-def header_maker(webpage, header_class):
+def header_maker(webpage, header_class, player):
+    def player_div_banner(stat, div, classes):
+        new_div = jp.Div(
+            a=div,
+            classes=classes
+        )
+        new_div.label = jp.P(
+            text=f'{stat}: {player[stat]}',
+            a=new_div,
+            classes=classes + "justify-self-center "
+        )
+        return new_div
     header = jp.Div(a=webpage, classes=header_class)
     header.name_banner = jp.Div(
         text=f'{player["Name"]}, {player["Job"]}',
@@ -159,108 +114,182 @@ def header_maker(webpage, header_class):
 def library_display_maker(webpage, lib_class):
     library_display = jp.Div(
         a=webpage,
-        classes=lib_class + "overflow-x-auto grid-row-1 "
+        classes=lib_class + "grid-cols-3 divide-solid divide-black m-2 "
     )
     library_display.text_div = jp.Div(
-        a=webpage,
-        classes=lib_class + "border-5 border-black "
+        a=library_display,
+        classes="row-span-full col-span-1 "
     )
-    library_display.text_div.title_line = jp.Div(
+    library_display.transcribe_area = jp.Div(
+        a=library_display,
+        classes='mx-4 col-span-2 col-start-2 p-4'
+    )
+    library_display.text_div.desc_box = jp.Div(
         a=library_display.text_div,
-        classes=base_class_dark
+        text="Choose a book from the list",
+        classes="justify-self-center "
     )
-    library_display.text_div.desc_line = jp.Div(
-        a=library_display.text_div,
-        classes=base_class_dark
-    )
-    library_display.text_div.payout_line = jp.Div(
-        a=library_display.text_div,
-        classes=base_class_dark
-    )
-    library_display.text_div.choose_book = create_button(
-        library_display.text_div,
-        "Choose a Book to Start",
-        start_transcription
+    library_display.book_select = jp.Select(
+        a=library_display,
+        change=describe_book,
+        classes=header_base_dark + 'mx-6 h-8 col-start-1 '
     )
 
     for i in range(len(player['Library'])):
-        library_display.i = create_button(library_display,
-                                          player['Library'][i]['Title'],
-                                          describe_book)
-        library_display.i.value = i
-        library_display.i.text_div = library_display.text_div
-        library_display.i.title_line = library_display.text_div.title_line
-        library_display.i.desc_line = library_display.text_div.desc_line
-        library_display.i.payout_line = library_display.text_div.payout_line
-        library_display.i.choose_book = library_display.text_div.choose_book
+        library_display.book_select.add(
+            jp.Option(
+                text=player['Library'][i]['Title'],
+                value=i,
+                text_div=library_display.text_div
+            )
+        )
+    library_display.book_select.text_div = library_display.text_div
+    library_display.book_select.transcribe_area = library_display.transcribe_area
     return library_display
 
 
-def transcribe_menu(self, msg):
-    self.display.delete()
-    pass
-
-
-def start_transcription():
-    pass
-
-
-def can_afford(amount):
-    if player['Money'] >= amount:
-        return True
+def describe_book(self, msg):
+    book = player['Library'][int(self.value)]
+    self.text_div.delete()
+    self.text_div.desc_box = jp.Div(
+        a=self.text_div,
+        classes=base_class_dark + 'col-span-1 row-start-2 '
+    )
+    self.text_div.desc_box.description = jp.Div(
+        a=self.text_div.desc_box,
+        classes=base_class_dark + 'rounded-full bg-indigo-300 p-5 '
+    )
+    self.text_div.desc_box.description.text = (
+        f"This {book['Type']} is titled \"{book['Title']}\". "
+        f"Written by {book['Author']}, "
+        f"it is a popular work in the {book['Genre']} genre. "
+        f"It consists of {book['Word Count']} words. "
+        f"Buyers might pay {book['Transcript Reward']} money."
+    )
+    if book['Transcript Started'] is True:
+        self.text_div.desc_box.choose_book = create_menu_button(
+            self.text_div.desc_box,
+            f"Continue \"{book['Title']}\" Transcript",
+            self.text_div.desc_box,
+            start_transcription)
+        self.text_div.desc_box.choose_book.book = book
+        self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
     else:
-        return False
+        self.text_div.desc_box.choose_book = create_menu_button(
+            self.text_div.desc_box,
+            f"Transcribe \"{book['Title']}\"",
+            self.text_div.desc_box,
+            start_transcription)
+        self.text_div.desc_box.choose_book.book = book
+        self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
+    pass
+
+def start_transcription(self, msg):
+
+    def transcript_div(main_div, text):
+        div = jp.Div(a=main_div)
+        div.text = text
+        return div
+
+    def time_estimate():
+        if self.book["Familiarity"] == 0:
+            self.book["Familiarity"] += 0.1
+        words_left = self.book['Word Count'] - self.book['Words Transcribed']
+        base_estimate = words_left / player['Skills']['Base Write']
+        core_time = (base_estimate * 0.75)
+        learning_curve = (base_estimate * (0.10 / self.book["Familiarity"]))
+        final_estimate = core_time + learning_curve + 1
+        return math.floor(final_estimate)
+
+    def supply_list():
+        sheets_needed = math.ceil(self.book['Word Count'] / player['Desk']['Pen']['Words Per Sheet'])
+        self.sheets_needed = sheets_needed
+        print(sheets_needed)
+        ink_needed = math.ceil(self.book['Word Count'] / player['Desk']['Ink']['Words Per ml'])
+        self.ink_needed = ink_needed
+        print(ink_needed)
+        return f"{sheets_needed} sheets of paper, {ink_needed} ml of ink"
+
+    self.transcribe_area.delete()
+    if self.book['Transcript Started'] is False:
+        self.book['Transcript Started'] = True
+        self.book.update({
+            'Words Transcribed': 0,
+            'Has Supplies': False,
+            'Errors': 0,
+            'Is Proofread': False
+        })
+
+    self.transcribe_area.title_line = transcript_div(
+        self.transcribe_area,
+        f'Title: {self.book["Title"]}'
+    )
+    self.transcribe_area.word_count = transcript_div(
+        self.transcribe_area,
+        f'Number of Words: {self.book["Word Count"]}'
+    )
+    self.transcribe_area.words_transcribed = transcript_div(
+        self.transcribe_area,
+        f'Words Transcribed: {self.book["Words Transcribed"]}'
+    )
+    self.transcribe_area.words_transcribed = transcript_div(
+        self.transcribe_area,
+        (
+            'Estimated Time to Complete: '
+            f'{time_estimate()} minutes'
+        )
+    )
+    self.transcribe_area.supplies_needed = transcript_div(
+        self.transcribe_area,
+        (
+            'Supplies needed: '
+            f'{supply_list()}'
+        )
+    )
+    pass
 
 
 def buy_snack(self, msg):
-    if can_afford(self.cost):
-        player[self.stat] += self.qty
-        player['Money'] -= self.cost
-        self.header.snack_banner.label.text = f'{self.stat}: {player[self.stat]}'
-        self.header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
-    pass
-
-
-def set_qty_label(stat):
-    if stat == 'Paper':
-        return 'Sheets'
-    if stat == 'Ink':
-        return 'Milliliters'
+    if self.player['Money'] >= self.cost:
+        self.player[self.stat] += self.qty
+        self.player['Money'] -= self.cost
+        self.header.snack_banner.label.text = f'{self.stat}: {self.player[self.stat]}'
+        self.header.money_banner.label.text = f'{"Money"}: {self.player["Money"]}'
     pass
 
 
 def buy_desk_item(self, msg):
+    def set_qty_label(stat):
+        if stat == 'Paper':
+            return 'Sheets'
+        if stat == 'Ink':
+            return 'Milliliters'
+        pass
     qty_label = set_qty_label(self.stat)
-    if can_afford(self.cost):
-        player['Desk'][self.stat][qty_label] += self.qty
-        player['Money'] -= self.cost
-        self.header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
+    if self.player['Money'] >= self.cost:
+        self.player['Desk'][self.stat][qty_label] += self.qty
+        self.player['Money'] -= self.cost
+        self.header.money_banner.label.text = f'{"Money"}: {self.player["Money"]}'
         for i in self.desk.components:
             if qty_label in i.text:
-                i.text = f'{qty_label}: {player["Desk"][self.stat][qty_label]}'
+                i.text = f'{qty_label}: {self.player["Desk"][self.stat][qty_label]}'
     pass
 
 
-def eat_snack(self, msg):
-    if player['Snacks'] > 0:
-        player['Snacks'] += -1
-        player['Stamina'] += 25
-        self.header.snack_banner.label.text = f'Snacks: {player["Snacks"]}'
-        self.header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
-    pass
-
-
-def buy_menu_button_maker(div, text, function, stat, cost, qty, header, desk=None):
-    button = create_button(div, text, function)
-    button.stat = stat
-    button.header = header
-    button.cost = cost
-    button.qty = qty
-    button.desk = desk
-    return button
 
 
 def buy_menu(self, msg):
+
+    def buy_menu_button_maker(div, text, function, stat, cost, qty, header, desk=None):
+        button = create_button(div, text, function)
+        button.stat = stat
+        button.header = header
+        button.cost = cost
+        button.qty = qty
+        button.desk = desk
+        button.player = self.player
+        return button
+
     self.display.delete()
     self.display.buy_snacks = buy_menu_button_maker(
         self.display,
@@ -294,22 +323,78 @@ def buy_menu(self, msg):
     pass
 
 
+def eat_menu(self, msg):
+    self.display.delete()
+    self.display.snacks = create_button(self.display, "Eat Snack for 25 Stamina", eat_snack)
+    self.display.snacks.header = self.header
+    self.display.snacks.player = self.player
+
+    pass
+
+def eat_snack(self, msg):
+    if self.player['Snacks'] > 0:
+        self.player['Snacks'] += -1
+        self.player['Stamina'] += 25
+        self.header.snack_banner.label.text = f'Snacks: {self.player["Snacks"]}'
+        self.header.stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
+    pass
+
+
+def transcribe_menu(self, msg):
+    self.display.delete()
+    self.display.library_display = library_display_maker(self.display, library_display_class)
+
+    pass
+
+
+def main_menu_maker(webpage, header, desk_display, player):
+
+    def main_menu_button_maker(div, text, display, function):
+        button = create_menu_button(div, text, display, function)
+        button.current_menu = main_desk.button_area.current_menu
+        button.header = header
+        button.desk = desk_display
+        button.player = player
+        return button
+
+    main_desk = jp.Div(a=webpage, classes=grid_base)
+    main_desk.button_area = jp.Div(
+        a=main_desk,
+        classes="bg-pink-300 col-span-full focus:ring-4 "
+    )
+    main_desk.button_area.current_menu = "Home"
+    main_desk.text_area = jp.Div(
+        a=main_desk,
+        classes="col-span-full inline "
+    )
+    main_desk.button_area.buy = main_menu_button_maker(
+        main_desk.button_area,
+        "Buy",
+        main_desk.text_area,
+        buy_menu
+    )
+    main_desk.button_area.transcribe = main_menu_button_maker(
+        main_desk.button_area,
+        "Transcribe",
+        main_desk.text_area,
+        transcribe_menu
+    )
+    main_desk.button_area.eat = main_menu_button_maker(
+        main_desk.button_area,
+        "Self Care",
+        main_desk.text_area,
+        eat_menu
+    )
+    return main_desk
+
+
 def gamemenu():
     wp = jp.WebPage(delete_flag=True)
-    header = header_maker(wp, header_grid)
+    player = pr.new_player()
+    header = header_maker(wp, header_grid, player)
     desk_display = desk_area(wp, player)
-    library_display = library_display_maker(wp, library_display_class)
-    main_desk = jp.Div(a=wp, classes=grid_base)
-    main_desk.button_area = jp.Div(a=main_desk, classes="ring-4 bg-pink-300 col-span-full ")
-    main_desk.text_area = jp.Div(a=main_desk, classes="col-span-full ")
-    main_desk.button_area.buy = create_menu_button(main_desk.button_area, "Buy Supplies", main_desk.text_area, buy_menu)    
-    main_desk.button_area.buy.header = header
-    main_desk.button_area.buy.desk = desk_display
-    main_desk.button_area.transcribe = create_menu_button(main_desk.button_area, "Transcribe New Book", main_desk.text_area, transcribe_menu)    
-    main_desk.button_area.eat = create_menu_button(main_desk.button_area, "Eat Snack", main_desk.text_area, eat_snack)
-    main_desk.button_area.eat.header = header
+    main_desk = main_menu_maker(wp, header, desk_display, player)
     return wp
 
 
-player = pr.new_player()
 jp.justpy(gamemenu)

@@ -5,7 +5,7 @@ import book
 
 def populate_library():
     library = []
-    for i in range(9):
+    for i in range(5):
         library.append(book.create_book())
     return library
 
@@ -35,9 +35,9 @@ def new_player():
         'Money': random.randrange(20, 50),
         'Time': datetime.datetime(2000, 1, 1, 7, 0, 0),
         'Stamina': 100,
-        'Lit Speed': 150,
         'Skills': {
-            'Base WPM': 150,
+            'Base Read': 150,  # in words per minute
+            'Base Write': 20,  # in words per minute
             'Read': 2,
             'Write': 1
         }

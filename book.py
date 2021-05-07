@@ -1,6 +1,7 @@
 #import libtcod as tcod
 import random
 import markovify
+import math
 
 '''
 All the markov models are in newline format
@@ -57,12 +58,14 @@ def create_book():
         'Genre': gen_genre(),
         'Word Count': word_count,
         'Type': gen_type(word_count),
-        'Transcript Reward': gen_transcript_price()
+        'Familiarity': 0,
+        'Transcript Started': False,
+        'Transcript Reward': gen_transcript_price(word_count)
     }
 
 
 def gen_title():
-    return make_short_sentence(model["title"], 45)
+    return make_short_sentence(model["title"], 45).title()
 
 
 def gen_manuscript_title():
@@ -104,8 +107,8 @@ def gen_author():
     return make_short_sentence(model["author"], 30)
 
 
-def gen_transcript_price():
-    return random.randrange(10, 90)
+def gen_transcript_price(words):
+    return math.floor(words / 100 * random.randrange(10, 30))
 
 
 model = initialize_models()
