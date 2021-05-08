@@ -111,7 +111,7 @@ def header_maker(webpage, header_class, player):
     return header
 
 
-def library_display_maker(webpage, lib_class):
+def library_display_maker(webpage, lib_class, player, player_header, desk):
     library_display = jp.Div(
         a=webpage,
         classes=lib_class + "grid-cols-3 divide-solid divide-black m-2 "
@@ -144,12 +144,21 @@ def library_display_maker(webpage, lib_class):
             )
         )
     library_display.book_select.text_div = library_display.text_div
+    library_display.book_select.player = player
+    library_display.book_select.header = player_header
+    library_display.book_select.desk = desk
     library_display.book_select.transcribe_area = library_display.transcribe_area
     return library_display
 
 
 def describe_book(self, msg):
-    book = player['Library'][int(self.value)]
+    book = self.player['Library'][int(self.value)]
+
+    if book['Transcript Started'] is True:
+        button_text = f"Continue \"{book['Title']}\" Transcript"
+    else:
+        button_text = f"Transcribe \"{book['Title']}\""
+
     self.text_div.delete()
     self.text_div.desc_box = jp.Div(
         a=self.text_div,
@@ -166,22 +175,17 @@ def describe_book(self, msg):
         f"It consists of {book['Word Count']} words. "
         f"Buyers might pay {book['Transcript Reward']} money."
     )
-    if book['Transcript Started'] is True:
-        self.text_div.desc_box.choose_book = create_menu_button(
-            self.text_div.desc_box,
-            f"Continue \"{book['Title']}\" Transcript",
-            self.text_div.desc_box,
-            start_transcription)
-        self.text_div.desc_box.choose_book.book = book
-        self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
-    else:
-        self.text_div.desc_box.choose_book = create_menu_button(
-            self.text_div.desc_box,
-            f"Transcribe \"{book['Title']}\"",
-            self.text_div.desc_box,
-            start_transcription)
-        self.text_div.desc_box.choose_book.book = book
-        self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
+
+    self.text_div.desc_box.choose_book = create_menu_button(
+        self.text_div.desc_box,
+        button_text,
+        self.text_div.desc_box,
+        start_transcription)
+    self.text_div.desc_box.choose_book.book = book
+    self.text_div.desc_box.choose_book.player = self.player
+    self.text_div.desc_box.choose_book.header = self.header
+    self.text_div.desc_box.choose_book.desk = self.desk
+    self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
     pass
 
 def start_transcription(self, msg):
@@ -195,22 +199,141 @@ def start_transcription(self, msg):
         if self.book["Familiarity"] == 0:
             self.book["Familiarity"] += 0.1
         words_left = self.book['Word Count'] - self.book['Words Transcribed']
-        base_estimate = words_left / player['Skills']['Base Write']
+        base_write = self.player['Skills']['Base Write']
+        write_skill = self.player['Skills']['Write']
+        base_estimate = words_left / (base_write * write_skill)
         core_time = (base_estimate * 0.75)
         learning_curve = (base_estimate * (0.10 / self.book["Familiarity"]))
         final_estimate = core_time + learning_curve + 1
-        return math.floor(final_estimate)
+        self.time_estimate = math.floor(final_estimate)
+        return self.time_estimate
 
     def supply_list():
-        sheets_needed = math.ceil(self.book['Word Count'] / player['Desk']['Pen']['Words Per Sheet'])
-        self.sheets_needed = sheets_needed
-        print(sheets_needed)
-        ink_needed = math.ceil(self.book['Word Count'] / player['Desk']['Ink']['Words Per ml'])
-        self.ink_needed = ink_needed
-        print(ink_needed)
+        wps = self.player['Desk']['Pen']['Words Per Sheet']
+        wpm = self.player['Desk']['Ink']['Words Per ml']
+        sheets_needed = math.ceil(self.book['Word Count'] / wps)
+        self.sheets = sheets_needed
+        ink_needed = math.ceil(self.book['Word Count'] / wpm)
+        self.ink = ink_needed
         return f"{sheets_needed} sheets of paper, {ink_needed} ml of ink"
 
-    self.transcribe_area.delete()
+    def can_allocate():
+        enough_ink = False
+        enough_paper = False
+        if self.player['Desk']['Ink']['Milliliters'] >= self.ink:
+            enough_ink = True
+        if self.player['Desk']['Paper']['Sheets'] >= self.sheets:
+            enough_paper = True
+
+        if enough_paper and enough_ink:
+            self.enough_supplies = True
+            return "You can allocate supplies for this transcription."
+        else:
+            return "You are missing some supplies."
+
+    def allocate_supplies(self, msg):
+        if self.book['Has Supplies'] is False:
+            self.player['Desk']['Paper']['Sheets'] -= self.sheets
+            self.player['Desk']['Ink']['Milliliters'] -= self.ink
+            self.book['Has Supplies'] = True
+            for i in self.desk.ink.components:
+                if 'Milliliters' in i.text:
+                    i.text = f"Milliliters: {self.player['Desk']['Ink']['Milliliters']}"
+            for i in self.desk.paper.components:
+                if 'Sheets' in i.text:
+                    i.text = f"Sheets: {self.player['Desk']['Paper']['Sheets']}"
+        transcription_info()
+        pass
+
+    def validate_input(self, msg):
+        if self.value > self.max:
+            self.value = self.max
+        self.transcribe.label.text = f'Write for {self.value} minutes'
+        pass
+
+    def write_transcript(self, msg):
+        print(self.time)
+
+        pass
+    def transcription_info():
+        self.transcribe_area.delete()
+        self.transcribe_area.title_line = transcript_div(
+            self.transcribe_area,
+            f'Title: {self.book["Title"]}'
+        )
+
+        self.transcribe_area.word_count = transcript_div(
+            self.transcribe_area,
+            f'Number of Words: {self.book["Word Count"]}'
+        )
+
+        self.transcribe_area.words_transcribed = transcript_div(
+            self.transcribe_area,
+            f'Words Transcribed: {self.book["Words Transcribed"]}'
+        )
+        if self.book['Has Supplies'] is False:
+            self.transcribe_area.supplies_needed = transcript_div(
+                self.transcribe_area,
+                (
+                    'Supplies needed: '
+                    f'{supply_list()}'
+                )
+            )
+
+            self.transcribe_area.can_allocate = transcript_div(
+                self.transcribe_area,
+                f'{can_allocate()}'
+            )
+
+            if self.enough_supplies is True:
+                self.transcribe_area.allocate_supplies = create_button(
+                    self.transcribe_area,
+                    "Allocate Supplies",
+                    allocate_supplies
+                )
+                a = self.transcribe_area.allocate_supplies
+                a.sheets = self.sheets
+                a.ink = self.ink
+                a.desk = self.desk
+                a.player = self.player
+                a.header = self.header
+                a.book = self.book
+        else:
+            if self.book['Words Transcribed'] < self.book['Word Count']:
+                self.transcribe_area.words_transcribed = transcript_div(
+                    self.transcribe_area,
+                    (
+                        'Estimated Time to Complete: '
+                        f'{time_estimate()} minutes'
+                    )
+                )
+                self.transcribe_area.time_picker = transcript_div(
+                    self.transcribe_area,
+                    'Write for how many minutes?  '
+                )
+                self.transcribe_area.time_picker.input = jp.InputChangeOnly(
+                    type='number',
+                    min=0,
+                    max=self.time_estimate,
+                    a=self.transcribe_area.time_picker,
+                    change=validate_input,
+                    classes="w-12 rounded text-indigo "
+                )
+
+                self.transcribe_area.time_picker.transcribe = create_button(
+                    self.transcribe_area,
+                    f'Select time in minutes',
+                    write_transcript
+                )
+                t = self.transcribe_area.time_picker.transcribe
+                t.player = self.player
+                t.header = self.header
+                t.desk = self.desk
+                t.time = self.transcribe_area.time_picker.input.value
+
+                self.transcribe_area.time_picker.input.transcribe = self.transcribe_area.time_picker.transcribe
+
+
     if self.book['Transcript Started'] is False:
         self.book['Transcript Started'] = True
         self.book.update({
@@ -220,33 +343,11 @@ def start_transcription(self, msg):
             'Is Proofread': False
         })
 
-    self.transcribe_area.title_line = transcript_div(
-        self.transcribe_area,
-        f'Title: {self.book["Title"]}'
-    )
-    self.transcribe_area.word_count = transcript_div(
-        self.transcribe_area,
-        f'Number of Words: {self.book["Word Count"]}'
-    )
-    self.transcribe_area.words_transcribed = transcript_div(
-        self.transcribe_area,
-        f'Words Transcribed: {self.book["Words Transcribed"]}'
-    )
-    self.transcribe_area.words_transcribed = transcript_div(
-        self.transcribe_area,
-        (
-            'Estimated Time to Complete: '
-            f'{time_estimate()} minutes'
-        )
-    )
-    self.transcribe_area.supplies_needed = transcript_div(
-        self.transcribe_area,
-        (
-            'Supplies needed: '
-            f'{supply_list()}'
-        )
-    )
+    transcription_info()
     pass
+
+
+
 
 
 def buy_snack(self, msg):
@@ -274,8 +375,6 @@ def buy_desk_item(self, msg):
             if qty_label in i.text:
                 i.text = f'{qty_label}: {self.player["Desk"][self.stat][qty_label]}'
     pass
-
-
 
 
 def buy_menu(self, msg):
@@ -342,7 +441,13 @@ def eat_snack(self, msg):
 
 def transcribe_menu(self, msg):
     self.display.delete()
-    self.display.library_display = library_display_maker(self.display, library_display_class)
+    self.display.library_display = library_display_maker(
+        self.display,
+        library_display_class,
+        self.player,
+        self.header,
+        self.desk
+    )
 
     pass
 

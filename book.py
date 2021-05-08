@@ -18,14 +18,14 @@ def make_markov_model(file, state_size):
 
 def make_short_sentence(model, length, test_output=True):
     sentence = None
-    while sentence == None:
+    while sentence is None:
         sentence = model.make_short_sentence(length, test_output=test_output)
     return sentence
 
 
 def make_sentence(model, test_output=True):
     sentence = None
-    while sentence == None:
+    while sentence is None:
         sentence = model.make_sentence(test_output=test_output)
     return sentence
 
