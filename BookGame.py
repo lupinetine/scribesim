@@ -705,4 +705,4 @@ def gamemenu():
     return wp
 
 
-jp.justpy(gamemenu, host=0.0.0.0, port=8080)
+jp.justpy(gamemenu, host='0.0.0.0', port=8080)
