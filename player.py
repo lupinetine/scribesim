@@ -35,6 +35,8 @@ def new_player():
         'Money': random.randrange(20, 50),
         'Time': datetime.datetime(2000, 1, 1, 7, 0, 0),
         'Stamina': 100,
+        'Stamina Per Minute': 0.5,
+        'Fatigue': 0,
         'Skills': {
             'Base Read': 150,  # in words per minute
             'Base Write': 20,  # in words per minute
