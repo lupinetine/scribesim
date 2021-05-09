@@ -143,11 +143,12 @@ def library_display_maker(webpage, lib_class, player, player_header, desk):
                 text_div=library_display.text_div
             )
         )
-    library_display.book_select.text_div = library_display.text_div
-    library_display.book_select.player = player
-    library_display.book_select.header = player_header
-    library_display.book_select.desk = desk
-    library_display.book_select.transcribe_area = library_display.transcribe_area
+    ld = library_display.book_select
+    ld.text_div = library_display.text_div
+    ld.player = player
+    ld.header = player_header
+    ld.desk = desk
+    ld.transcribe_area = library_display.transcribe_area
     return library_display
 
 
@@ -181,14 +182,28 @@ def describe_book(self, msg):
         button_text,
         self.text_div.desc_box,
         start_transcription)
-    self.text_div.desc_box.choose_book.book = book
-    self.text_div.desc_box.choose_book.player = self.player
-    self.text_div.desc_box.choose_book.header = self.header
-    self.text_div.desc_box.choose_book.desk = self.desk
-    self.text_div.desc_box.choose_book.transcribe_area = self.transcribe_area
+    cb = self.text_div.desc_box.choose_book
+    cb.book = book
+    cb.player = self.player
+    cb.header = self.header
+    cb.desk = self.desk
+    cb.transcribe_area = self.transcribe_area
     pass
 
 def start_transcription(self, msg):
+
+    def set_transcript_attributes():
+            if self.book['Transcript Started'] is False:
+                self.book['Transcript Started'] = True
+                self.book.update({
+                    ''
+                    'Has Supplies': False,
+                    'Words Transcribed': 0,
+                    'Transcription Complete': False,
+                    'Errors': 0,
+                    'Is Proofread': False
+                })
+            pass
 
     def transcript_div(main_div, text):
         div = jp.Div(a=main_div)
@@ -249,29 +264,160 @@ def start_transcription(self, msg):
         if self.value > self.max:
             self.value = self.max
         self.transcribe.label.text = f'Write for {self.value} minutes'
+        self.transcribe.time = self.value
         pass
 
     def write_transcript(self, msg):
-        print(self.time)
+        def fatigue_calculator():
+            current_tiredness = max(1, self.player['Fatigue'])
+            return random.randrange(0, current_tiredness)
+
+        def words_written(fatigue):
+            total_words = self.book["Word Count"]
+            true_time_written = self.time / max(current_fatigue, 1)
+            percent_complete = round(true_time_written / self.estimate, 2)
+            return math.floor(total_words * percent_complete)
+
+        def error_calc(comp_words, fatigue):
+            pen_errors = self.player['Desk']['Pen']['Error Rate']
+            potential_errors = random.randrange(0, comp_words)
+            potential_pen_errors = pen_errors * fatigue
+            return int(potential_pen_errors * potential_errors)
+
+        def refresh_stamina():
+            stamina_used = self.time * self.player['Stamina Per Minute']
+            if self.player['Stamina'] - stamina_used < 0:
+                self.player['Fatigue'] += max(1, self.player['Fatigue'])
+            self.player['Stamina'] -= stamina_used
+            stamina_banner = self.header.stamina_banner
+            stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
+            pass
+
+        def increment_time():
+            self.player['Time'] += datetime.timedelta(minutes=self.time)
+            time_banner = self.header.time_banner
+            time_banner.label.text = f'Time: {self.player["Time"]}'
+            pass
+
+        def stamina_check():
+            if self.player['Stamina'] > 0:
+                return True
+            else:
+                return False
+
+        transcript_complete = self.book['Transcription Complete']
+        enough_stamina = stamina_check()
+        if not transcript_complete and enough_stamina:
+
+            total_words = self.book["Word Count"]
+
+            current_fatigue = fatigue_calculator()
+
+            completed_words = words_written(current_fatigue)
+
+            self.book['Words Transcribed'] += completed_words
+            if self.book['Words Transcribed'] >= total_words:
+                self.book['Words Transcribed'] = total_words
+                if self.book['Familiarity'] < 1:
+                    self.book['Familiarity'] += 0.1
+                self.book['Transcription Complete'] = True
+
+            self.book['Errors'] += error_calc(completed_words, current_fatigue)
+            refresh_stamina()
+            increment_time()
+            transcription_info()
+        pass
+
+    def proofread_transcript(self, msg):
+        def refresh_stamina():
+            stamina_used = self.time * self.player['Stamina Per Minute']
+            if self.player['Stamina'] - stamina_used < 0:
+                self.player['Fatigue'] += max(1, self.player['Fatigue'])
+            self.player['Stamina'] -= stamina_used
+            stamina_banner = self.header.stamina_banner
+            stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
+            pass
+
+        def increment_time():
+            self.player['Time'] += datetime.timedelta(minutes=self.time)
+            time_banner = self.header.time_banner
+            time_banner.label.text = f'Time: {self.player["Time"]}'
+            pass
+
+        skill_set = self.player['Skills']
+        read_speed = skill_set['Base Read'] * skill_set['Read']
+        self.time = math.ceil(self.book['Word Count'] / read_speed)
+        self.book['Is Proofread'] = True
+        refresh_stamina()
+        increment_time()
+        transcription_info()
+        pass
+
+    def correct_transcript(self, msg):
+        pass
+
+    def find_buyer(self, msg):
+        def increment_time(time):
+            self.player['Time'] += datetime.timedelta(minutes=time)
+            time_banner = self.header.time_banner
+            time_banner.label.text = f'Time: {self.player["Time"]}'
+            pass
+
+        def decrement_stamina(loss):
+            self.player['Stamina'] -= max(loss * self.player['Fatigue'], 1)
+            stamina_banner = self.header.stamina_banner
+            stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
+            pass
+
+        popularity_discount = 120 - self.book['Popularity']
+        price_modifier = random.randrange(1, popularity_discount)
+        price_in_cents = self.book['Transcript Reward'] * price_modifier
+        transcript_price = math.ceil(price_in_cents / 100)
+        increment_time(60)
+        decrement_stamina(1)
+        self.price.price = transcript_price
+        self.price.label.text = f'Sell for {transcript_price}'
 
         pass
+
+    def sell_work(self, msg):
+        self.player['Money'] += self.price
+        m_text = self.header.money_banner.label.text
+        m_text = f'Money: {self.player["Money"]}'
+        attributes_to_remove = [
+            'Has Supplies',
+            'Words Transcribed',
+            'Transcription Complete',
+            'Errors',
+            'Is Proofread'
+        ]
+        for i in attributes_to_remove:
+            self.book.pop(i)
+        self.book['Transcript Started'] = False
+        self.book['Transcripts Sold'] += 1
+        self.book['Popularity'] += 10
+        transcription_info()
+        pass
+
     def transcription_info():
-        self.transcribe_area.delete()
-        self.transcribe_area.title_line = transcript_div(
-            self.transcribe_area,
-            f'Title: {self.book["Title"]}'
-        )
+        def basic_info():
+            self.transcribe_area.title_line = transcript_div(
+                self.transcribe_area,
+                f'Title: {self.book["Title"]}'
+            )
 
-        self.transcribe_area.word_count = transcript_div(
-            self.transcribe_area,
-            f'Number of Words: {self.book["Word Count"]}'
-        )
+            self.transcribe_area.word_count = transcript_div(
+                self.transcribe_area,
+                f'Number of Words: {self.book["Word Count"]}'
+            )
 
-        self.transcribe_area.words_transcribed = transcript_div(
-            self.transcribe_area,
-            f'Words Transcribed: {self.book["Words Transcribed"]}'
-        )
-        if self.book['Has Supplies'] is False:
+            self.transcribe_area.words_transcribed = transcript_div(
+                self.transcribe_area,
+                f'Words Transcribed: {self.book["Words Transcribed"]}'
+            )
+            pass
+
+        def allocate_supply_info():
             self.transcribe_area.supplies_needed = transcript_div(
                 self.transcribe_area,
                 (
@@ -298,56 +444,114 @@ def start_transcription(self, msg):
                 a.player = self.player
                 a.header = self.header
                 a.book = self.book
-        else:
-            if self.book['Words Transcribed'] < self.book['Word Count']:
-                self.transcribe_area.words_transcribed = transcript_div(
+            pass
+
+        def transcript_progress():
+            self.transcribe_area.words_transcribed = transcript_div(
+                self.transcribe_area,
+                (
+                    'Estimated Time to Complete: '
+                    f'{time_estimate()} minutes'
+                )
+            )
+            self.transcribe_area.time_picker = transcript_div(
+                self.transcribe_area,
+                'Write for how many minutes?  '
+            )
+            self.transcribe_area.time_picker.input = jp.InputChangeOnly(
+                type='number',
+                min=0,
+                max=self.time_estimate,
+                a=self.transcribe_area.time_picker,
+                change=validate_input,
+                classes="w-12 rounded text-indigo "
+            )
+
+            self.transcribe_area.time_picker.transcribe = create_button(
+                self.transcribe_area,
+                f'Write for {self.time_estimate} minutes',
+                write_transcript
+            )
+            t = self.transcribe_area.time_picker.transcribe
+            t.time = self.time_estimate
+            t.desk = self.desk
+            t.book = self.book
+            t.player = self.player
+            t.header = self.header
+            t.estimate = self.time_estimate
+            self.transcribe_area.time_picker.input.transcribe = t
+            pass
+
+        def proofread_info():
+            def correct_and_sell():
+                self.transcribe_area.error_count = transcript_div(
                     self.transcribe_area,
                     (
-                        'Estimated Time to Complete: '
-                        f'{time_estimate()} minutes'
+                        f"Errors Found: "
+                        f"{self.book['Errors']}"
                     )
                 )
-                self.transcribe_area.time_picker = transcript_div(
+                if self.book['Errors'] > 0:
+                    self.transcribe_area.correct = create_button(
+                        self.transcribe_area,
+                        'Correct Transcript',
+                        correct_transcript
+                    )
+                else:
+                    self.transcribe_area.sell = create_button(
+                        self.transcribe_area,
+                        'Find Buyer (1 hour)',
+                        find_buyer
+                    )
+                    self.transcribe_area.price = create_button(
+                        self.transcribe_area,
+                        'Sell Price',
+                        sell_work
+                    )
+                    s = self.transcribe_area.sell
+                    s.book = self.book
+                    s.player = self.player
+                    s.header = self.header
+                    s.transcribe_area = self.transcribe_area
+                    s.price = self.transcribe_area.price
+
+                    p = self.transcribe_area.price
+                    p.header = self.header
+                    p.player = self.player
+                    p.book = self.book
+
+                pass
+            self.transcribe_area.completed_transcript = transcript_div(
+                self.transcribe_area,
+                "Transcription Complete"
+            )
+            if self.book['Is Proofread']:
+                correct_and_sell()
+            else:
+                self.transcribe_area.proofread = create_button(
                     self.transcribe_area,
-                    'Write for how many minutes?  '
+                    'Proofread Transcript',
+                    proofread_transcript
                 )
-                self.transcribe_area.time_picker.input = jp.InputChangeOnly(
-                    type='number',
-                    min=0,
-                    max=self.time_estimate,
-                    a=self.transcribe_area.time_picker,
-                    change=validate_input,
-                    classes="w-12 rounded text-indigo "
-                )
+                self.transcribe_area.proofread.book = self.book
+                self.transcribe_area.proofread.player = self.player
+                self.transcribe_area.proofread.header = self.header
+            pass
 
-                self.transcribe_area.time_picker.transcribe = create_button(
-                    self.transcribe_area,
-                    f'Select time in minutes',
-                    write_transcript
-                )
-                t = self.transcribe_area.time_picker.transcribe
-                t.player = self.player
-                t.header = self.header
-                t.desk = self.desk
-                t.time = self.transcribe_area.time_picker.input.value
+        self.transcribe_area.delete()
+        basic_info()
 
-                self.transcribe_area.time_picker.input.transcribe = self.transcribe_area.time_picker.transcribe
+        if self.book['Has Supplies'] is False:
+            allocate_supply_info()
+        else:
+            if self.book['Transcription Complete'] is False:
+                transcript_progress()
+            else:
+                proofread_info()
 
-
-    if self.book['Transcript Started'] is False:
-        self.book['Transcript Started'] = True
-        self.book.update({
-            'Words Transcribed': 0,
-            'Has Supplies': False,
-            'Errors': 0,
-            'Is Proofread': False
-        })
-
+    set_transcript_attributes()
     transcription_info()
     pass
-
-
-
 
 
 def buy_snack(self, msg):

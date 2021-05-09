@@ -59,6 +59,8 @@ def create_book():
         'Word Count': word_count,
         'Type': gen_type(word_count),
         'Familiarity': 0,
+        'Popularity': 0,
+        'Transcripts Sold': 0,
         'Transcript Started': False,
         'Transcript Reward': gen_transcript_price(word_count)
     }
