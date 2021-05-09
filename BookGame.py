@@ -196,7 +196,6 @@ def start_transcription(self, msg):
             if self.book['Transcript Started'] is False:
                 self.book['Transcript Started'] = True
                 self.book.update({
-                    ''
                     'Has Supplies': False,
                     'Words Transcribed': 0,
                     'Transcription Complete': False,
@@ -382,8 +381,8 @@ def start_transcription(self, msg):
 
     def sell_work(self, msg):
         self.player['Money'] += self.price
-        m_text = self.header.money_banner.label.text
-        m_text = f'Money: {self.player["Money"]}'
+        m = self.header.money_banner
+        m.label.text = f'Money: {self.player["Money"]}'
         attributes_to_remove = [
             'Has Supplies',
             'Words Transcribed',
