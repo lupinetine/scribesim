@@ -6,7 +6,7 @@ import book
 import math
 import player as pr
 import justpy as jp
-import icecream as ic
+import argparse
 
 # GLOBALS #
 
@@ -705,4 +705,4 @@ def gamemenu():
     return wp
 
 
-jp.justpy(gamemenu)
+jp.justpy(gamemenu, host=0.0.0.0, port=8080)
