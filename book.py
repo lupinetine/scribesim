@@ -9,7 +9,7 @@ All the markov models are in newline format
 
 
 def make_markov_model(file, state_size):
-    with open(file) as f:
+    with open(file, encoding="utf-8") as f:
         gen = f.read()
     model = markovify.NewlineText(gen, state_size=state_size)
     model.compile()
