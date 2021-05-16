@@ -3,10 +3,6 @@ import random
 import markovify
 import math
 
-'''
-All the markov models are in newline format
-'''
-
 
 def make_markov_model(file, state_size):
     with open(file, encoding="utf-8") as f:
@@ -62,7 +58,7 @@ def create_book():
         'Popularity': 0,
         'Transcripts Sold': 0,
         'Transcript Started': False,
-        'Transcript Reward': gen_transcript_price(word_count)
+        'Base Price': gen_transcript_price(word_count)
     }
 
 
@@ -110,7 +106,7 @@ def gen_author():
 
 
 def gen_transcript_price(words):
-    return math.floor(words / 100 * random.randrange(10, 30))
+    return math.floor(words / 100 * random.randrange(1, 10))
 
 
 model = initialize_models()

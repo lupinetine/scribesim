@@ -3,13 +3,54 @@ import random
 import datetime
 import utilities as ut
 
-def describe_book(self, msg):
-    book = self.player['Library'][int(self.value)]
-    if book['Transcript Started'] is True:
-        button_text = f"Continue \"{book['Title']}\" Transcript"
-    else:
-        button_text = f"Transcribe \"{book['Title']}\""
+def set_book_text(book):
+    global current_price
+    current_price = calc_price(book)
+    return (
+        f"This {book['Type']} is titled \"{book['Title']}\". "
+        f"Written by {book['Author']}, "
+        f"it is a {describe_popularity(book)} work in "
+        f"the {book['Genre']} genre. "
+        f"It consists of {book['Word Count']} words. "
+        f"You've seen it sell for ${current_price}."
+    )
 
+def describe_popularity(book):
+    p = book['Popularity']
+    if p > 200:
+        return 'cultural touchstone and a'
+    elif p > 100:
+        return 'deeply oversold'
+    elif p > 75:
+        return 'very'     
+    elif p > 50:
+        return 'popular'
+    elif p > 25:
+        return 'fairly well known'
+    elif p > 10:
+        return 'known'
+    else:
+        return 'relatively unknown'
+
+def calc_price(book):
+    availability = random.randrange(1, max(5, book['Transcripts Sold']))
+    multiplier = max(1, book['Popularity'] / 10) / availability
+    price = book['Base Price'] / multiplier
+    return math.ceil(price)
+
+def describe_book(self, msg):
+    global desc_box
+    
+    def transcript_text():
+        if book['Transcript Started'] is True:
+            return f"Continue \"{book['Title']}\" Transcript"
+        else:
+            return f"Transcribe \"{book['Title']}\""
+
+
+    book = self.player['Library'][int(self.value)]
+    button_text = transcript_text()
+    
     self.text_div.desc_box.delete()
     self.text_div.desc_box = ut.new_div(
         self.text_div,
@@ -19,21 +60,19 @@ def describe_book(self, msg):
         self.text_div.desc_box,
         ut.base_class_dark + 'rounded-full bg-indigo-300 p-5 '
     )
-    self.text_div.desc_box.description.text = (
-        f"This {book['Type']} is titled \"{book['Title']}\". "
-        f"Written by {book['Author']}, "
-        f"it is a popular work in the {book['Genre']} genre. "
-        f"It consists of {book['Word Count']} words. "
-        f"Buyers might pay {book['Transcript Reward']} money."
-    )
-
+    self.text_div.desc_box.description.text = set_book_text(book)
+    
     self.text_div.desc_box.choose_book = ut.create_menu_button(
         self.text_div.desc_box,
         button_text,
         self.text_div.desc_box,
         start_transcription)
+
+    desc_box = self.text_div.desc_box
+
     cb = self.text_div.desc_box.choose_book
     cb.book = book
+    cb.desc = self.text_div.desc_box
     cb.desk = self.desk
     cb.player = self.player
     cb.header = self.header
@@ -193,10 +232,9 @@ def start_transcription(self, msg):
             stamina_banner = self.header.stamina_banner
             stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
             pass
-
-        popularity_discount = 120 - self.book['Popularity']
+        popularity_discount = random.randrange(self.book['Popularity'], 120)
         price_modifier = random.randrange(1, popularity_discount)
-        price_in_cents = self.book['Transcript Reward'] * price_modifier
+        price_in_cents = current_price * price_modifier
         transcript_price = math.ceil(price_in_cents / 100)
         increment_time(60)
         decrement_stamina(1)
@@ -206,6 +244,7 @@ def start_transcription(self, msg):
         pass
 
     def sell_work(self, msg):
+        global desc_box
         self.player['Money'] += self.price
         m = self.header.money_banner
         m.label.text = f'Money: {self.player["Money"]}'
@@ -221,6 +260,9 @@ def start_transcription(self, msg):
         self.book['Transcript Started'] = False
         self.book['Transcripts Sold'] += 1
         self.book['Popularity'] += 10
+        
+        print(desc_box.description.text)
+        desc_box.description.text = set_book_text(self.book)
         transcription_info()
         pass
 
@@ -312,12 +354,17 @@ def start_transcription(self, msg):
                         f"{self.book['Errors']}"
                     )
                 )
-                if self.book['Errors'] > 0 and self.player['Stamina'] > 0:
-                    self.transcribe_area.correct = ut.create_button(
-                        self.transcribe_area,
-                        'Correct Transcript',
-                        correct_transcript
-                    )
+                self.transcribe_area.current_price = ut.transcript_div(
+                    self.transcribe_area,
+                    f"Current Top Price: {current_price}"
+                )
+                if self.book['Errors'] > 0 :
+                    if self.player['Stamina'] > 0:
+                        self.transcribe_area.correct = ut.create_button(
+                            self.transcribe_area,
+                            'Correct Transcript',
+                            correct_transcript
+                        )
                 else:
                     self.transcribe_area.sell = ut.create_button(
                         self.transcribe_area,
@@ -338,11 +385,11 @@ def start_transcription(self, msg):
 
                     p = self.transcribe_area.price
                     p.book = self.book
+                    p.desc = self.desc
                     p.player = self.player
                     p.header = self.header
-                    
+                pass    
 
-                pass
             self.transcribe_area.completed_transcript = ut.transcript_div(
                 self.transcribe_area,
                 "Transcription Complete"

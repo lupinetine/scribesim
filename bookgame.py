@@ -59,11 +59,10 @@ def library_display_maker(webpage, lib_class, player, player_header, desk):
     )
     library_display.text_div.desc_box = ut.new_div(
         library_display.text_div,
-        "justify-self-center "
+        "object-center "
     )
-    library_display.text_div.desc_box.text = "Choose a book from the list",
     library_display.book_select = ut.lib_select(
-        library_display,
+        library_display.text_div,
         tr.describe_book,
         ut.header_base_dark + 'mx-6 h-8 col-start-1 '
     )
