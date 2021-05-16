@@ -63,7 +63,7 @@ def set_book_text(book):
         f"it is a {describe_popularity(book)} work in "
         f"the {book['Genre']} genre. "
         f"It consists of {book['Word Count']} words. "
-        f"You've seen it sell for ${current_price}."
+        f"Copies can sell for ${current_price}."
     )
 
 def describe_popularity(book):
@@ -150,6 +150,8 @@ def start_transcription(self, msg):
         if player['Stamina'] - stamina_used < 0:
             player['Fatigue'] += max(1, player['Fatigue'])
         ut.update_stamina_banner(stamina_used, header, player)
+        if player['Fatigue'] > 10:
+            transcription_info()
     pass
 
     def time_estimate():
@@ -268,6 +270,13 @@ def start_transcription(self, msg):
     def correct_transcript(self, msg):
         print('miao')
         print(self.book)
+        skill_set = self.player['Skills']
+        write_speed = skill_set['Base Write'] * skill_set['Write']
+        self.book['Errors'] = 0
+        self.time = math.ceil(self.book['Errors'] / write_speed)
+        refresh_stamina(self.time)
+        ut.update_time(self.time, self.header, self.player)
+        transcription_info()
         pass
 
     def find_buyer(self, msg):
@@ -454,6 +463,12 @@ def start_transcription(self, msg):
             pass
 
         self.transcribe_area.delete()
+        if self.player['Fatigue'] > 10:
+            self.transcribe_area.too_tired = ut.transcript_div(
+                    self.transcribe_area,
+                    "You are too tired to do any writing!!"
+                )
+            return
         basic_info()
 
         if self.book['Has Supplies'] is False:

@@ -39,13 +39,13 @@ def initialize_models():
     models = {}
     models["genre"] = make_markov_model("./genres.list", 1)
     models["title"] = make_markov_model("./book_titles.list", 1)
-    #scramble_authors()
+    # scramble_authors()
     models["author"] = make_markov_model("./authors_random", 1)
     # best_title_model = make_markov_model("./bestseller_titles.list", 1)
     return models
 
 
-#  book functions  # 
+#  book functions  #
 def create_book():
     word_count = gen_words()
     return {

@@ -12,7 +12,7 @@ def care_menu(self, msg):
     self.display.delete()
     self.display.snacks = care_button(
         self.display,
-        "Eat Snack for 25 Stamina",
+        "Eat Snack",
         eat_snack
     )
     self.display.snacks = care_button(
