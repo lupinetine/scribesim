@@ -1,7 +1,58 @@
 import math
 import random
-import datetime
 import utilities as ut
+
+def transcribe_menu(self, msg):
+    self.display.delete()
+    self.display.library_display = library_display_maker(
+        self.display,
+        ut.library_display_class,
+        self.player,
+        self.header,
+        self.desk
+    )
+    pass
+
+
+def library_display_maker(webpage, lib_class, player, header, desk):
+    library_display = ut.new_div(
+        webpage,
+        lib_class + "grid-cols-3 divide-solid divide-black m-2 "
+    )
+    library_display.text_div = ut.new_div(
+        library_display,
+        "row-span-full col-span-1 "
+    )
+    library_display.transcribe_area = ut.new_div(
+        library_display,
+        'mx-4 col-span-2 col-start-2 p-4'
+    )
+    library_display.text_div.desc_box = ut.new_div(
+        library_display.text_div,
+        "object-center "
+    )
+    library_display.book_select = ut.lib_select(
+        library_display.text_div,
+        describe_book,
+        ut.header_base_dark + 'mx-6 h-8 col-start-1 '
+    )
+
+    for i in range(len(player['Library'])):
+        library_display.book_select.add(
+            ut.lib_option(
+                player['Library'][i]['Title'],
+                i,
+                library_display.text_div
+            )
+        )
+    ld = library_display.book_select
+    ld.text_div = library_display.text_div
+    ld.player = player
+    ld.header = header
+    ld.desk = desk
+    ld.transcribe_area = library_display.transcribe_area
+    return library_display
+
 
 def set_book_text(book):
     global current_price
@@ -12,7 +63,7 @@ def set_book_text(book):
         f"it is a {describe_popularity(book)} work in "
         f"the {book['Genre']} genre. "
         f"It consists of {book['Word Count']} words. "
-        f"You've seen it sell for ${current_price}."
+        f"Copies can sell for ${current_price}."
     )
 
 def describe_popularity(book):
@@ -93,19 +144,14 @@ def start_transcription(self, msg):
                 })
             pass
 
-    def increment_time(time, player=self.player, header=self.header):
-        player['Time'] += datetime.timedelta(minutes=time)
-        time_banner = header.time_banner
-        time_banner.label.text = f'Time: {player["Time"]}'
-    pass
 
     def refresh_stamina(time, player=self.player, header=self.header):
         stamina_used = time * player['Stamina Per Minute']
         if player['Stamina'] - stamina_used < 0:
             player['Fatigue'] += max(1, player['Fatigue'])
-        player['Stamina'] -= stamina_used
-        stamina_banner = header.stamina_banner
-        stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
+        ut.update_stamina_banner(stamina_used, header, player)
+        if player['Fatigue'] > 10:
+            transcription_info()
     pass
 
     def time_estimate():
@@ -207,7 +253,7 @@ def start_transcription(self, msg):
 
             self.book['Errors'] += error_calc(completed_words, current_fatigue)
             refresh_stamina(self.time)
-            increment_time(self.time)
+            ut.update_time(self.time, self.header, self.player)
             transcription_info()
         pass
 
@@ -217,30 +263,37 @@ def start_transcription(self, msg):
         self.time = math.ceil(self.book['Word Count'] / read_speed)
         self.book['Is Proofread'] = True
         refresh_stamina(self.time)
-        increment_time(self.time)
+        ut.update_time(self.time, self.header, self.player)
         transcription_info()
         pass
 
     def correct_transcript(self, msg):
-        
+        print('miao')
+        print(self.book)
+        skill_set = self.player['Skills']
+        write_speed = skill_set['Base Write'] * skill_set['Write']
+        self.book['Errors'] = 0
+        self.time = math.ceil(self.book['Errors'] / write_speed)
+        refresh_stamina(self.time)
+        ut.update_time(self.time, self.header, self.player)
+        transcription_info()
         pass
 
     def find_buyer(self, msg):
-
-        def decrement_stamina(loss):
-            self.player['Stamina'] -= max(loss * self.player['Fatigue'], 1)
-            stamina_banner = self.header.stamina_banner
-            stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
-            pass
-        popularity_discount = random.randrange(self.book['Popularity'], 120)
-        price_modifier = random.randrange(1, popularity_discount)
+        if self.book['Popularity'] > 120:
+            discount = random.randrange(120, self.book['Popularity'])
+        else:
+            discount = random.randrange(self.book['Popularity'], 120)
+        disc_lower = math.floor(discount / 10)
+        price_modifier = random.randrange(disc_lower, discount)
         price_in_cents = current_price * price_modifier
+
         transcript_price = math.ceil(price_in_cents / 100)
-        increment_time(60)
-        decrement_stamina(1)
+        stamina_loss = max(self.player['Fatigue'], 1)
+        ut.update_time(60, self.header, self.player)
+        refresh_stamina(2 * stamina_loss)
         self.price.price = transcript_price
         self.price.label.text = f'Sell for {transcript_price}'
-
         pass
 
     def sell_work(self, msg):
@@ -260,8 +313,6 @@ def start_transcription(self, msg):
         self.book['Transcript Started'] = False
         self.book['Transcripts Sold'] += 1
         self.book['Popularity'] += 10
-        
-        print(desc_box.description.text)
         desc_box.description.text = set_book_text(self.book)
         transcription_info()
         pass
@@ -365,6 +416,10 @@ def start_transcription(self, msg):
                             'Correct Transcript',
                             correct_transcript
                         )
+                        c = self.transcribe_area.correct
+                        c.book = self.book
+                        c.player = self.player
+                        c.header = self.header
                 else:
                     self.transcribe_area.sell = ut.create_button(
                         self.transcribe_area,
@@ -408,6 +463,12 @@ def start_transcription(self, msg):
             pass
 
         self.transcribe_area.delete()
+        if self.player['Fatigue'] > 10:
+            self.transcribe_area.too_tired = ut.transcript_div(
+                    self.transcribe_area,
+                    "You are too tired to do any writing!!"
+                )
+            return
         basic_info()
 
         if self.book['Has Supplies'] is False:

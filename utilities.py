@@ -1,3 +1,4 @@
+import datetime
 import justpy as jp
 
 # CLASSES CSS #
@@ -25,6 +26,33 @@ blue_header = header_base + "bg-blue-500 "
 green_header = header_base + "bg-green-500 "
 red_header = header_base + "bg-red-500 "
 pink_header = header_base + "bg-pink-500 "
+
+def update_stamina_banner(loss, header, player):
+    player['Stamina'] -= loss
+    header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
+    header.stamina_banner.classes = stamina_header(player['Fatigue'])
+    header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
+    
+
+def update_time(time, header, player):
+    player['Time'] += datetime.timedelta(minutes=time)
+    # print(player['Time'])
+    # print(player['Time'].hour)
+    header.time_banner.label.text = f'Time: {player["Time"]}'
+
+
+def stamina_header(fatigue):
+    if fatigue > 20:
+        return header_base + "bg-red-900 "
+    elif fatigue > 15:
+        return header_base + "bg-red-800 "
+    elif fatigue > 10:
+        return header_base + "bg-red-700 "
+    elif fatigue > 5:
+        return header_base + "bg-red-600 "
+    else:
+        return header_base_dark + "bg-red-300 "
+    
 
 def input_number(div, max, change, classes=input_class):
     return jp.InputChangeOnly(
@@ -92,30 +120,19 @@ def lib_option(text, value, text_div):
 )
 
 
-def create_menu_button(
-    dest_div,
-    button_text,
-    display_area,
-    click_function,
-    button_classes=button_menu,
-):
-    button = create_button(
-        dest_div,
-        button_text,
-        click_function,
-        button_classes
-    )
-    button.display = display_area
+def create_menu_button(div, text, display, click, classes=button_menu):
+    button = create_button(div, text, click, classes)
+    button.display = display
     return button
 
 
-def create_button(dest_div, button_text, click_function, button_classes=button_menu):
-    button = create_empty_button(dest_div, button_text, button_classes)
-    button.on('click', click_function)
+def create_button(div, text, click, classes=button_menu):
+    button = create_empty_button(div, text, classes)
+    button.on('click', click)
     return button
 
 
-def create_empty_button(dest_div, button_text, button_classes=button_menu):
-    button = jp.Button(a=dest_div, classes=button_classes)
-    button.label = jp.P(a=button, text=button_text)
+def create_empty_button(div, text, classes=button_menu):
+    button = jp.Button(a=div, classes=classes)
+    button.label = jp.P(a=button, text=text)
     return button
