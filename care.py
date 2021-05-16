@@ -26,9 +26,8 @@ def care_menu(self, msg):
 def eat_snack(self, msg):
     if self.player['Snacks'] > 0:
         self.player['Snacks'] += -1
-        self.player['Stamina'] += 25
+        ut.update_stamina_banner(-25, self.header, self.player)
         self.header.snack_banner.label.text = f'Snacks: {self.player["Snacks"]}'
-        self.header.stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
     pass
 
 

@@ -266,28 +266,25 @@ def start_transcription(self, msg):
         pass
 
     def correct_transcript(self, msg):
-        print(self.book['Errors'])
+        print('miao')
+        print(self.book)
         pass
 
     def find_buyer(self, msg):
-
-        def decrement_stamina(loss):
-            ut.update_stamina_banner(
-                loss,
-                self.header, 
-                self.player
-            )
-            pass
-        popularity_discount = random.randrange(self.book['Popularity'], 120)
-        price_modifier = random.randrange(1, popularity_discount)
+        if self.book['Popularity'] > 120:
+            discount = random.randrange(120, self.book['Popularity'])
+        else:
+            discount = random.randrange(self.book['Popularity'], 120)
+        disc_lower = math.floor(discount / 10)
+        price_modifier = random.randrange(disc_lower, discount)
         price_in_cents = current_price * price_modifier
+
         transcript_price = math.ceil(price_in_cents / 100)
         stamina_loss = max(self.player['Fatigue'], 1)
         ut.update_time(60, self.header, self.player)
-        decrement_stamina(stamina_loss)
+        refresh_stamina(2 * stamina_loss)
         self.price.price = transcript_price
         self.price.label.text = f'Sell for {transcript_price}'
-
         pass
 
     def sell_work(self, msg):
@@ -307,8 +304,6 @@ def start_transcription(self, msg):
         self.book['Transcript Started'] = False
         self.book['Transcripts Sold'] += 1
         self.book['Popularity'] += 10
-        
-        print(desc_box.description.text)
         desc_box.description.text = set_book_text(self.book)
         transcription_info()
         pass
@@ -412,6 +407,10 @@ def start_transcription(self, msg):
                             'Correct Transcript',
                             correct_transcript
                         )
+                        c = self.transcribe_area.correct
+                        c.book = self.book
+                        c.player = self.player
+                        c.header = self.header
                 else:
                     self.transcribe_area.sell = ut.create_button(
                         self.transcribe_area,

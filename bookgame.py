@@ -8,7 +8,7 @@ import player as pr
 import utilities as ut 
 import transcription as tr
 
-def desk_area(webpage, player):
+def desk_area(webpage):
     new_div = ut.new_div(webpage, "grid grid-cols-3 ")
     new_div.paper = ut.desk_item(new_div, "Paper Tray", player['Desk']['Paper'])
     new_div.ink = ut.desk_item(new_div, "Inkwell", player['Desk']['Ink'])
@@ -44,32 +44,6 @@ def header_maker(webpage):
         ut.blue_header,
         player)
     return header
-
-
-def care_menu(self, msg):
-    def care_button(div, text, click):
-        b = ut.create_button(div, text, click)
-        b.header = header
-        b.player = player
-        return b
-    self.display.delete()
-    self.display.snacks = care_button(
-        self.display, 
-        "Eat Snack for 25 Stamina", 
-        eat_snack
-    )
-    pass
-
-def eat_snack(self, msg):
-    if player['Snacks'] > 0:
-        player['Snacks'] += -1
-        player['Stamina'] += 25
-        header.snack_banner.label.text = f'Snacks: {player["Snacks"]}'
-        header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
-    pass
-
-
-
 
 
 def main_menu_maker(webpage, desk_display):
@@ -120,7 +94,7 @@ def gamemenu():
     wp = ut.new_webpage()
     player = pr.new_player()
     header = header_maker(wp)
-    desk_display = desk_area(wp, player)
+    desk_display = desk_area(wp)
     main_desk = main_menu_maker(wp, desk_display)
     return wp
 

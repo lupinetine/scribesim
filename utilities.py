@@ -29,7 +29,6 @@ pink_header = header_base + "bg-pink-500 "
 
 def update_stamina_banner(loss, header, player):
     player['Stamina'] -= loss
-    print(stamina_header(player['Fatigue']))
     header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
     header.stamina_banner.classes = stamina_header(player['Fatigue'])
     header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
