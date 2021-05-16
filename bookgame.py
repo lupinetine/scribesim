@@ -2,6 +2,8 @@
 import random
 import datetime
 import math
+import care
+import shop
 import player as pr
 import utilities as ut 
 import transcription as tr
@@ -24,7 +26,7 @@ def header_maker(webpage):
     header.stamina_banner = ut.player_div_banner(
         "Stamina",
         header,
-        ut.red_header,
+        ut.stamina_header(player['Fatigue']),
         player)
     header.money_banner = ut.player_div_banner(
         "Money",
@@ -84,78 +86,18 @@ def library_display_maker(webpage, lib_class, player, player_header, desk):
     return library_display
 
 
-def buy_snack(self, msg):
-    if player['Money'] >= self.cost:
-        player[self.stat] += self.qty
-        player['Money'] -= self.cost
-        header.snack_banner.label.text = f'{self.stat}: {player[self.stat]}'
-        header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
-    pass
-
-
-def buy_desk_item(self, msg):
-    def set_qty_label(stat):
-        if stat == 'Paper':
-            return 'Sheets'
-        if stat == 'Ink':
-            return 'Milliliters'
-        pass
-    qty_label = set_qty_label(self.stat)
-    if player['Money'] >= self.cost:
-        player['Desk'][self.stat][qty_label] += self.qty
-        player['Money'] -= self.cost
-        header.money_banner.label.text = f'{"Money"}: {player["Money"]}'
-        for i in self.desk.components:
-            if qty_label in i.text:
-                i.text = f'{qty_label}: {player["Desk"][self.stat][qty_label]}'
-    pass
-
-
-def buy_menu(self, msg):
-
-    def buy_menu_button_maker(div, text, function, stat, cost, qty, desk=None):
-        button = ut.create_button(div, text, function)
-        button.stat = stat
-        button.cost = cost
-        button.qty = qty
-        button.desk = desk
-        return button
-
+def care_menu(self, msg):
+    def care_button(div, text, click):
+        b = ut.create_button(div, text, click)
+        b.header = header
+        b.player = player
+        return b
     self.display.delete()
-    self.display.buy_snacks = buy_menu_button_maker(
-        self.display,
-        "Buy Snacks @ $5/each",
-        buy_snack,
-        "Snacks",
-        5,
-        1
+    self.display.snacks = care_button(
+        self.display, 
+        "Eat Snack for 25 Stamina", 
+        eat_snack
     )
-    self.display.buy_paper = buy_menu_button_maker(
-        self.display,
-        "Buy Paper @ $10/100 sheets",
-        buy_desk_item,
-        "Paper",
-        10,
-        100,
-        self.desk.paper
-    )
-    self.display.buy_ink = buy_menu_button_maker(
-        self.display,
-        "Buy Ink @ $5/50ml",
-        buy_desk_item,
-        "Ink",
-        5,
-        50,
-        self.desk.ink
-    )
-    pass
-
-
-def eat_menu(self, msg):
-    self.display.delete()
-    self.display.snacks = ut.create_button(self.display, "Eat Snack for 25 Stamina", eat_snack)
-    self.display.snacks.header = header
-    self.display.snacks.player = player
     pass
 
 def eat_snack(self, msg):
@@ -204,7 +146,7 @@ def main_menu_maker(webpage, desk_display):
         main_desk.button_area,
         "Buy",
         main_desk.text_area,
-        buy_menu
+        shop.buy_menu
     )
     main_desk.button_area.transcribe = main_menu_button_maker(
         main_desk.button_area,
@@ -212,11 +154,11 @@ def main_menu_maker(webpage, desk_display):
         main_desk.text_area,
         transcribe_menu
     )
-    main_desk.button_area.eat = main_menu_button_maker(
+    main_desk.button_area.self_care = main_menu_button_maker(
         main_desk.button_area,
         "Self Care",
         main_desk.text_area,
-        eat_menu
+        care.care_menu
     )
     return main_desk
 

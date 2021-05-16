@@ -103,9 +103,7 @@ def start_transcription(self, msg):
         stamina_used = time * player['Stamina Per Minute']
         if player['Stamina'] - stamina_used < 0:
             player['Fatigue'] += max(1, player['Fatigue'])
-        player['Stamina'] -= stamina_used
-        stamina_banner = header.stamina_banner
-        stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
+        ut.update_stamina_banner(stamina_used, header, player)
     pass
 
     def time_estimate():
@@ -222,22 +220,25 @@ def start_transcription(self, msg):
         pass
 
     def correct_transcript(self, msg):
-        
+        print(self.book['Errors'])
         pass
 
     def find_buyer(self, msg):
 
         def decrement_stamina(loss):
-            self.player['Stamina'] -= max(loss * self.player['Fatigue'], 1)
-            stamina_banner = self.header.stamina_banner
-            stamina_banner.label.text = f'Stamina: {self.player["Stamina"]}'
+            ut.update_stamina_banner(
+                loss,
+                self.header, 
+                self.player
+            )
             pass
         popularity_discount = random.randrange(self.book['Popularity'], 120)
         price_modifier = random.randrange(1, popularity_discount)
         price_in_cents = current_price * price_modifier
         transcript_price = math.ceil(price_in_cents / 100)
+        stamina_loss = max(self.player['Fatigue'], 1)
         increment_time(60)
-        decrement_stamina(1)
+        decrement_stamina(stamina_loss)
         self.price.price = transcript_price
         self.price.label.text = f'Sell for {transcript_price}'
 
