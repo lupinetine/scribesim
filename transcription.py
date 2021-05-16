@@ -1,7 +1,58 @@
 import math
 import random
-import datetime
 import utilities as ut
+
+def transcribe_menu(self, msg):
+    self.display.delete()
+    self.display.library_display = library_display_maker(
+        self.display,
+        ut.library_display_class,
+        self.player,
+        self.header,
+        self.desk
+    )
+    pass
+
+
+def library_display_maker(webpage, lib_class, player, header, desk):
+    library_display = ut.new_div(
+        webpage,
+        lib_class + "grid-cols-3 divide-solid divide-black m-2 "
+    )
+    library_display.text_div = ut.new_div(
+        library_display,
+        "row-span-full col-span-1 "
+    )
+    library_display.transcribe_area = ut.new_div(
+        library_display,
+        'mx-4 col-span-2 col-start-2 p-4'
+    )
+    library_display.text_div.desc_box = ut.new_div(
+        library_display.text_div,
+        "object-center "
+    )
+    library_display.book_select = ut.lib_select(
+        library_display.text_div,
+        describe_book,
+        ut.header_base_dark + 'mx-6 h-8 col-start-1 '
+    )
+
+    for i in range(len(player['Library'])):
+        library_display.book_select.add(
+            ut.lib_option(
+                player['Library'][i]['Title'],
+                i,
+                library_display.text_div
+            )
+        )
+    ld = library_display.book_select
+    ld.text_div = library_display.text_div
+    ld.player = player
+    ld.header = header
+    ld.desk = desk
+    ld.transcribe_area = library_display.transcribe_area
+    return library_display
+
 
 def set_book_text(book):
     global current_price
@@ -93,11 +144,6 @@ def start_transcription(self, msg):
                 })
             pass
 
-    def increment_time(time, player=self.player, header=self.header):
-        player['Time'] += datetime.timedelta(minutes=time)
-        time_banner = header.time_banner
-        time_banner.label.text = f'Time: {player["Time"]}'
-    pass
 
     def refresh_stamina(time, player=self.player, header=self.header):
         stamina_used = time * player['Stamina Per Minute']
@@ -205,7 +251,7 @@ def start_transcription(self, msg):
 
             self.book['Errors'] += error_calc(completed_words, current_fatigue)
             refresh_stamina(self.time)
-            increment_time(self.time)
+            ut.update_time(self.time, self.header, self.player)
             transcription_info()
         pass
 
@@ -215,7 +261,7 @@ def start_transcription(self, msg):
         self.time = math.ceil(self.book['Word Count'] / read_speed)
         self.book['Is Proofread'] = True
         refresh_stamina(self.time)
-        increment_time(self.time)
+        ut.update_time(self.time, self.header, self.player)
         transcription_info()
         pass
 
@@ -237,7 +283,7 @@ def start_transcription(self, msg):
         price_in_cents = current_price * price_modifier
         transcript_price = math.ceil(price_in_cents / 100)
         stamina_loss = max(self.player['Fatigue'], 1)
-        increment_time(60)
+        ut.update_time(60, self.header, self.player)
         decrement_stamina(stamina_loss)
         self.price.price = transcript_price
         self.price.label.text = f'Sell for {transcript_price}'

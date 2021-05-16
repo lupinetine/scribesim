@@ -46,46 +46,6 @@ def header_maker(webpage):
     return header
 
 
-def library_display_maker(webpage, lib_class, player, player_header, desk):
-    library_display = ut.new_div(
-        webpage,
-        lib_class + "grid-cols-3 divide-solid divide-black m-2 "
-    )
-    library_display.text_div = ut.new_div(
-        library_display,
-        "row-span-full col-span-1 "
-    )
-    library_display.transcribe_area = ut.new_div(
-        library_display,
-        'mx-4 col-span-2 col-start-2 p-4'
-    )
-    library_display.text_div.desc_box = ut.new_div(
-        library_display.text_div,
-        "object-center "
-    )
-    library_display.book_select = ut.lib_select(
-        library_display.text_div,
-        tr.describe_book,
-        ut.header_base_dark + 'mx-6 h-8 col-start-1 '
-    )
-
-    for i in range(len(player['Library'])):
-        library_display.book_select.add(
-            ut.lib_option(
-                player['Library'][i]['Title'],
-                i,
-                library_display.text_div
-            )
-        )
-    ld = library_display.book_select
-    ld.text_div = library_display.text_div
-    ld.player = player
-    ld.header = player_header
-    ld.desk = desk
-    ld.transcribe_area = library_display.transcribe_area
-    return library_display
-
-
 def care_menu(self, msg):
     def care_button(div, text, click):
         b = ut.create_button(div, text, click)
@@ -109,17 +69,7 @@ def eat_snack(self, msg):
     pass
 
 
-def transcribe_menu(self, msg):
-    self.display.delete()
-    self.display.library_display = library_display_maker(
-        self.display,
-        ut.library_display_class,
-        player,
-        header,
-        self.desk
-    )
 
-    pass
 
 
 def main_menu_maker(webpage, desk_display):
@@ -152,7 +102,7 @@ def main_menu_maker(webpage, desk_display):
         main_desk.button_area,
         "Transcribe",
         main_desk.text_area,
-        transcribe_menu
+        tr.transcribe_menu
     )
     main_desk.button_area.self_care = main_menu_button_maker(
         main_desk.button_area,

@@ -1,3 +1,4 @@
+import datetime
 import justpy as jp
 
 # CLASSES CSS #
@@ -32,6 +33,14 @@ def update_stamina_banner(loss, header, player):
     header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
     header.stamina_banner.classes = stamina_header(player['Fatigue'])
     header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
+    
+
+def update_time(time, header, player):
+    player['Time'] += datetime.timedelta(minutes=time)
+    # print(player['Time'])
+    # print(player['Time'].hour)
+    header.time_banner.label.text = f'Time: {player["Time"]}'
+
 
 def stamina_header(fatigue):
     if fatigue > 20:
