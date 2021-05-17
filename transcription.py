@@ -169,7 +169,7 @@ def start_transcription(self, msg):
 
     def supply_list():
         wps = self.player['Desk']['Pen']['Words Per Sheet']
-        wpm = self.player['Desk']['Ink']['Words Per ml']
+        wpm = self.player['Desk']['Pen']['Words Per ml']
         sheets_needed = math.ceil(self.book['Word Count'] / wps)
         self.sheets = sheets_needed
         ink_needed = math.ceil(self.book['Word Count'] / wpm)

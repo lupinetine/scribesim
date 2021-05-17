@@ -32,7 +32,11 @@ def update_stamina_banner(loss, header, player):
     header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
     header.stamina_banner.classes = stamina_header(player['Fatigue'])
     header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
-    
+
+def update_money_banner(change, header, player):
+    player['Money'] -= change
+    header.money_banner.label.text = f'Money: {player["Money"]}'
+
 
 def update_time(time, header, player):
     player['Time'] += datetime.timedelta(minutes=time)
@@ -52,6 +56,12 @@ def stamina_header(fatigue):
         return header_base + "bg-red-600 "
     else:
         return header_base_dark + "bg-red-300 "
+    
+
+def update_desk_banner(div, player):
+    div.paper = desk_item(div, "Paper Tray", player['Desk']['Paper'])
+    div.ink = desk_item(div, "Inkwell", player['Desk']['Ink'])
+    div.pen = desk_item(div, "Pen Holder", player['Desk']['Pen'])
     
 
 def input_number(div, max, change, classes=input_class):
@@ -83,6 +93,10 @@ def desk_item(desk_div, header_text, item_entry):
 
 def new_div(div, classes=base_class):
     return jp.Div(a=div, classes=classes)
+
+
+def text_div(div, text, classes=base_class):
+    return jp.Div(a=div, text=text, classes=classes)
 
 
 def transcript_div(main_div, text):

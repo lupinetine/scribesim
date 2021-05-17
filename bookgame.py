@@ -1,7 +1,4 @@
 # import libtcod as tcod
-import random
-import datetime
-import math
 import care
 import shop
 import player as pr
@@ -10,9 +7,7 @@ import transcription as tr
 
 def desk_area(webpage):
     new_div = ut.new_div(webpage, "grid grid-cols-3 ")
-    new_div.paper = ut.desk_item(new_div, "Paper Tray", player['Desk']['Paper'])
-    new_div.ink = ut.desk_item(new_div, "Inkwell", player['Desk']['Ink'])
-    new_div.pen = ut.desk_item(new_div, "Pen Holder", player['Desk']['Pen'])
+    ut.update_desk_banner(new_div, player)
     return new_div
 
 
@@ -72,6 +67,8 @@ def main_menu_maker(webpage, desk_display):
         main_desk.text_area,
         shop.buy_menu
     )
+    main_desk.button_area.buy.fruit = shop.create_fruit_list()
+    # main_desk.button_area.buy.vegetable = shop.create_vegetable_list()
     main_desk.button_area.transcribe = main_menu_button_maker(
         main_desk.button_area,
         "Transcribe",

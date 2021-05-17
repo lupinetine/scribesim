@@ -22,14 +22,20 @@ def new_player():
             },
             'Ink': {
                 'Name': 'Black Ink',
-                'Words Per ml': 400,
                 'Milliliters': 50
             },
             'Pen': {
                 'Name': 'Good Pen',
                 'Error Rate': 0.02,
+                'Words Per ml': 400,
                 'Words Per Sheet': 200
             }
+        },
+        'Stocks': {
+            'Paper': [],
+            'Ink': [],
+            'Pen': [],
+            'Food': []
         },
         'Snacks': random.randrange(4, 10),
         'Money': random.randrange(20, 50),
