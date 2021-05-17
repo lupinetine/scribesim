@@ -67,7 +67,6 @@ def show_food_info(self, msg):
         ),
         ut.base_class_dark + 'max-w-min bg-gray-700 '
     )
-    print('miao')
     pass
 
 
@@ -75,10 +74,10 @@ def visit_market(self, msg):
 
     def lookup_food_type(food_type):
         f = []
-        if food_type is 'vegetable':
+        if food_type == 'vegetable':
             f.append(lists.vegetable)
             f.append(self.vegetable_list)
-        elif food_type is 'fruit':
+        elif food_type == 'fruit':
             f.append(lists.fruit)
             f.append(self.fruit_list)
         else:
@@ -92,7 +91,6 @@ def visit_market(self, msg):
         food_lookup = f[1]
         food = random.choice(food_list)
         price = random.randrange(5, 12)
-        print(price)
         div.food = ut.create_menu_button(
             div,
             f'Buy {food.title()}',
@@ -106,8 +104,7 @@ def visit_market(self, msg):
         div.food.on('mouseenter', show_food_info)
 
     def restock_produce(div):
-        for i in range(10):
-            print('miao')
+        for _ in range(10):
             stock_food(div.items, 'vegetable', div.display)
             stock_food(div.items, 'fruit', div.display)
         div.restocked = True
