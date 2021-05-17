@@ -68,7 +68,8 @@ def main_menu_maker(webpage, desk_display):
         shop.buy_menu
     )
     main_desk.button_area.buy.fruit = shop.create_fruit_list()
-    # main_desk.button_area.buy.vegetable = shop.create_vegetable_list()
+    main_desk.button_area.buy.vegetable = shop.create_vegetable_list()
+    main_desk.button_area.buy.pastries = shop.create_pastries_list()
     main_desk.button_area.transcribe = main_menu_button_maker(
         main_desk.button_area,
         "Transcribe",
