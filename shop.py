@@ -42,7 +42,7 @@ def create_pastries_list():
 def create_food_list(input_list):
     dict = {}
     for i in input_list:
-        dict.update({i: random.randrange(1, 15)})
+        dict.update({i: random.randrange(5, 15)})
     return dict
 
 
@@ -61,63 +61,76 @@ def show_food_info(self, msg):
     self.display.info = ut.text_div(
         self.display,
         (
-            'This fruit restores '
-            f'{self.stamina_restore} '
-            f'stamina and costs {self.price}'
+            f'This {self.dict["Type"]} restores '
+            f'{self.dict["Restore"]} '
+            f'stamina and costs {self.dict["Price"]}'
         ),
-        ut.base_class_dark + 'max-w-min bg-gray-700 '
+        ut.base_class_dark + 'justify-center w-1/4 max-w-min bg-gray-700 '
     )
     pass
 
 
 def visit_market(self, msg):
 
-    def lookup_food_type(food_type):
-        f = []
-        if food_type == 'vegetable':
-            f.append(lists.vegetable)
-            f.append(self.vegetable_list)
-        elif food_type == 'fruit':
-            f.append(lists.fruit)
-            f.append(self.fruit_list)
-        else:
-            f.append(lists.pastries)
-            f.append(self.pastries_list)
-        return f
+    def display_stocks(div):
+        print('trying to display stocks')
+        for i in self.current_stock:
+            div.i = ut.create_menu_button(
+                div,
+                f'Buy {i["Name"]}',
+                div.display,
+                buy_food
+            )
+            print('button made')
+            div.i.dict = i
+            div.i.on('mouseenter', show_food_info)
 
-    def stock_food(div, food_type, display):
-        f = lookup_food_type(food_type)
-        food_list = f[0]
-        food_lookup = f[1]
+    def stock_food(food_list):
         food = random.choice(food_list)
+        if food_list is lists.vegetable:
+            food_type = 'vegetable'
+            restore = self.vegetable_list[food]
+        elif food_list is lists.fruit:
+            food_type = 'fruit'
+            restore = self.fruit_list[food]
+        else:
+            food_type = 'pastry'
+            restore = self.pastries_list[food]
         price = random.randrange(5, 12)
-        div.food = ut.create_menu_button(
-            div,
-            f'Buy {food.title()}',
-            display,
-            buy_food
-        )
-        div.food.food = food
-        div.food.food_type = food_type
-        div.food.stamina_restore = food_lookup[food]
-        div.food.price = price
-        div.food.on('mouseenter', show_food_info)
 
-    def restock_produce(div):
-        for _ in range(10):
-            stock_food(div.items, 'vegetable', div.display)
-            stock_food(div.items, 'fruit', div.display)
-        div.restocked = True
+        return {
+            'Name': food, 
+            'Type': food_type, 
+            'Restore': restore,
+            'Price': price
+        }
+
+    def choose_produce():
+        print('choosing a produce type')
+        if bool(random.getrandbits(1)):
+            print('it\'s veg!')
+            return lists.vegetable
+        else:
+            return lists.fruit
+
+    def restock_produce():
+        self.current_stock = []
+        for _ in range(random.randrange(4, 20)):
+            print('adding a new food')
+            self.current_stock.append(stock_food(choose_produce()))
 
     ut.update_time(60, header, player)
-    market_div = ut.new_div(self.display)
-    market_div.items = ut.new_div(market_div)
+    self.display.options.delete()
+    print('picklecat')
+    market_div = ut.new_div(self.display.options)
     market_div.display = ut.new_div(market_div)
-    restock_produce(market_div)
-    # if player['Time'].hour() < 6 and market_div.restocked is False:
-    #     restock_produce(market_div)
-    # elif player['Time'].hour() > 16:
-    #     market_div.restocked = False
+    if player['Time'].hour < 9 and self.restocked is False:
+        print('restocking time')
+        restock_produce()
+        self.restocked = True
+    elif player['Time'].hour > 16 and self.restocked is True:
+        self.restocked = False
+    display_stocks(market_div)
 
 
 def buy_menu(self, msg):
@@ -134,6 +147,8 @@ def buy_menu(self, msg):
         b = ut.create_button(div, text, function)
         b.desk = self.desk
         b.display = self.display
+        b.restocked = False
+        b.current_stock = []
         b.fruit_list = self.fruit
         b.vegetable_list = self.vegetable
         b.pastries_list = self.pastries
@@ -175,4 +190,8 @@ def buy_menu(self, msg):
         5,
         50
     )
+
+    self.display.options = ut.new_div(self.display)
+    self.display.market.options = self.display.options
+    
     pass
