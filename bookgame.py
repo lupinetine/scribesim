@@ -1,7 +1,4 @@
 # import libtcod as tcod
-import random
-import datetime
-import math
 import care
 import shop
 import player as pr
@@ -10,46 +7,48 @@ import transcription as tr
 
 def desk_area(webpage):
     new_div = ut.new_div(webpage, "grid grid-cols-3 ")
-    new_div.paper = ut.desk_item(new_div, "Paper Tray", player['Desk']['Paper'])
-    new_div.ink = ut.desk_item(new_div, "Inkwell", player['Desk']['Ink'])
-    new_div.pen = ut.desk_item(new_div, "Pen Holder", player['Desk']['Pen'])
+    ut.update_desk_banner(new_div, player)
     return new_div
 
 
 def header_maker(webpage):
     header = ut.new_div(webpage, ut.header_grid)
-    header.name_banner = ut.new_div(
+    header.name_banner = ut.text_div(
         header,
+        f'{player["Name"]}, {player["Job"]}',
         ut.player_name + "col-span-4 "
     )
-    header.name_banner.text = f'{player["Name"]}, {player["Job"]}'
     header.stamina_banner = ut.player_div_banner(
         "Stamina",
+        player,
         header,
-        ut.stamina_header(player['Fatigue']),
-        player)
+        ut.stamina_header(player['Fatigue'])
+    )
     header.money_banner = ut.player_div_banner(
         "Money",
+        player,
         header,
-        ut.green_header,
-        player)
-    header.snack_banner = ut.player_div_banner(
-        "Snacks",
+        ut.green_header
+    )
+    header.food_banner = ut.player_div_banner(
+        "Food",
+        player['Stocks'],
         header,
-        ut.pink_header,
-        player)
+        ut.pink_header
+    )
     header.time_banner = ut.player_div_banner(
         "Time",
+        player,
         header,
-        ut.blue_header,
-        player)
+        ut.blue_header
+    )
     return header
 
 
 def main_menu_maker(webpage, desk_display):
 
-    def main_menu_button_maker(div, text, display, function):
-        button = ut.create_menu_button(div, text, display, function)
+    def main_menu_button_maker(div, text, function, display):
+        button = ut.create_menu_button(div, text, function, display)
         button.current_menu = main_desk.button_area.current_menu
         button.header = header
         button.desk = desk_display
@@ -66,23 +65,27 @@ def main_menu_maker(webpage, desk_display):
         main_desk,
         "col-span-full inline "
     )
+
     main_desk.button_area.buy = main_menu_button_maker(
         main_desk.button_area,
         "Buy",
-        main_desk.text_area,
-        shop.buy_menu
+        shop.buy_menu,
+        main_desk.text_area
     )
+    main_desk.button_area.buy.market = shop.create_market_dictionary()
+ 
     main_desk.button_area.transcribe = main_menu_button_maker(
         main_desk.button_area,
         "Transcribe",
-        main_desk.text_area,
-        tr.transcribe_menu
+        tr.transcribe_menu,
+        main_desk.text_area
     )
+
     main_desk.button_area.self_care = main_menu_button_maker(
         main_desk.button_area,
         "Self Care",
-        main_desk.text_area,
-        care.care_menu
+        care.care_menu,
+        main_desk.text_area
     )
     return main_desk
 
