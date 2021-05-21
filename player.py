@@ -37,7 +37,6 @@ def new_player():
             'Pen': [],
             'Food': []
         },
-        'Snacks': random.randrange(4, 10),
         'Money': random.randrange(20, 50),
         'Time': datetime.datetime(2000, 1, 1, 7, 0, 0),
         'Stamina': 100,

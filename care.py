@@ -3,38 +3,63 @@ import utilities as ut
 
 def care_menu(self, msg):
 
-    def care_button(div, text, click):
-        b = ut.create_button(div, text, click)
-        b.header = self.header
-        b.player = self.player
+    global header
+    global player
+
+    player = self.player
+    header = self.header
+
+    def care_button(div, text, click, display):
+        b = ut.create_menu_button(div, text, click, display)
         return b
 
     self.display.delete()
-    self.display.snacks = care_button(
-        self.display,
-        "Eat Snack",
-        eat_snack
+    self.display.buttons = ut.new_div(self.display)
+    self.display.options = ut.new_div(self.display)
+    self.display.food = care_button(
+        self.display.buttons,
+        "Eat Food",
+        show_food,
+        self.display.options
     )
     self.display.snacks = care_button(
-        self.display,
+        self.display.buttons,
         "Sleep for 8 hours",
-        sleep
+        sleep,
+        self.display.options
     )
     pass
 
 
-def eat_snack(self, msg):
-    if self.player['Snacks'] > 0:
-        self.player['Snacks'] += -1
-        ut.update_stamina_banner(-25, self.header, self.player)
-        self.header.snack_banner.label.text = f'Snacks: {self.player["Snacks"]}'
-    pass
+def show_food(self, msg):
+    display_food(self.display)
 
+
+def display_food(div):
+    div.delete()
+    for i in player['Stocks']['Food']:
+        div.i = ut.create_button(
+            div,
+            f'Eat {i["Name"]}',
+            eat_food,
+            ut.food_menu
+        )
+        div.i.info = ut.new_para(div.i, 'text-xs ')
+        div.i.info.text = (f'Restores {i["Restore"]} Stamina')
+        div.i.dict = i
+        div.i.div = div
+
+def eat_food(self, msg):    
+    ut.update_stamina_banner(-self.dict['Restore'], header, player)
+    player['Stocks']['Food'].remove(self.dict)
+    ut.update_food_banner(header, player)
+    display_food(self.div)
+    
 
 def sleep(self, msg):
-    self.player['Fatigue'] -= 8
-    if self.player['Fatigue'] < -2:
-        self.player['Fatigue'] = -2
-    ut.update_time(480, self.header, self.player)
-    ut.update_stamina_banner(-100, self.header, self.player)
+    player['Fatigue'] -= 8
+    if player['Fatigue'] < -2:
+        player['Fatigue'] = -2
+    ut.update_time(480, header, player)
+    ut.update_stamina_banner(-100, header, player)
     pass

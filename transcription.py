@@ -116,8 +116,8 @@ def describe_book(self, msg):
     self.text_div.desc_box.choose_book = ut.create_menu_button(
         self.text_div.desc_box,
         button_text,
-        self.text_div.desc_box,
-        start_transcription)
+        start_transcription,
+        self.text_div.desc_box)
 
     desc_box = self.text_div.desc_box
 
@@ -218,7 +218,7 @@ def start_transcription(self, msg):
 
         def words_written(fatigue):
             total_words = self.book["Word Count"]
-            true_time_written = self.time / max(current_fatigue, 1)
+            true_time_written = self.time / max(fatigue, 1)
             percent_complete = round(true_time_written / self.estimate, 2)
             return math.floor(total_words * percent_complete)
 
@@ -231,8 +231,6 @@ def start_transcription(self, msg):
         def stamina_check():
             if self.player['Stamina'] > 0:
                 return True
-            else:
-                return False
 
         transcript_complete = self.book['Transcription Complete']
         enough_stamina = stamina_check()
@@ -298,9 +296,7 @@ def start_transcription(self, msg):
 
     def sell_work(self, msg):
         global desc_box
-        self.player['Money'] += self.price
-        m = self.header.money_banner
-        m.label.text = f'Money: {self.player["Money"]}'
+        ut.update_money_banner(-self.price, self.header, self.player)
         attributes_to_remove = [
             'Has Supplies',
             'Words Transcribed',

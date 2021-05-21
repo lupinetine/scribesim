@@ -6,13 +6,15 @@ base_class = "text-white rounded text-center "
 base_class_dark = "text-indigo rounded text-center "
 input_class = "w-12 rounded text-indigo "
 library_display_class = "grid grid-cols-3 divide-x bg-gray-300 col-span-auto "
-grid_base = "grid auto-cols-auto "
-button_base = "m-3 ring-4 ring-black-600 text-gray font-bold rounded "
-
+grid_base = "grid auto-cols-4 "
+button_base = "m-3 ring-4 ring-black-600 text-gray-50 font-bold rounded "
+button_base_dark = "m-3 ring-4 ring-white-600 text-purple-800 font-bold rounded "
 player_name = base_class + "m-1 font-black bg-indigo-500 "
 header_base = base_class + "m-2 font-bold justify-center "
 header_base_dark = base_class_dark + "m-2 font-bold justify-center "
 button_menu = button_base + "bg-blue-600 p-2 inline "
+food_menu = button_base + "bg-green-800 p-2 inline "
+
 
 header_grid = grid_base + "ring-4 ring-indigo-600 ring-offset-4 "
 
@@ -29,20 +31,23 @@ pink_header = header_base + "bg-pink-500 "
 
 def update_stamina_banner(loss, header, player):
     player['Stamina'] -= loss
-    header.stamina_banner.label.text = f'Stamina: {player["Stamina"]}'
+    header.stamina_banner.value.text = f'{player["Stamina"]}'
     header.stamina_banner.classes = stamina_header(player['Fatigue'])
-    header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
+    #header.stamina_banner.label.classes = stamina_header(player['Fatigue'])
 
 def update_money_banner(change, header, player):
     player['Money'] -= change
-    header.money_banner.label.text = f'Money: {player["Money"]}'
+    header.money_banner.value.text = f'{player["Money"]}'
+
+def update_food_banner(header, player):
+    header.food_banner.value.text = f'{len(player["Stocks"]["Food"])}'
 
 
 def update_time(time, header, player):
     player['Time'] += datetime.timedelta(minutes=time)
     # print(player['Time'])
     # print(player['Time'].hour)
-    header.time_banner.label.text = f'Time: {player["Time"]}'
+    header.time_banner.value.text = f'{player["Time"]}'
 
 
 def stamina_header(fatigue):
@@ -54,6 +59,10 @@ def stamina_header(fatigue):
         return header_base + "bg-red-700 "
     elif fatigue > 5:
         return header_base + "bg-red-600 "
+    elif fatigue > 3:
+        return header_base + "bg-red-500 "
+    elif fatigue > 2:
+        return header_base + "bg-red-400 "
     else:
         return header_base_dark + "bg-red-300 "
     
@@ -95,6 +104,10 @@ def new_div(div, classes=base_class):
     return jp.Div(a=div, classes=classes)
 
 
+def new_para(div, classes=base_class):
+    return jp.P(a=div, classes=classes)
+
+
 def text_div(div, text, classes=base_class):
     return jp.Div(a=div, text=text, classes=classes)
 
@@ -105,17 +118,26 @@ def transcript_div(main_div, text):
     return div
 
 
-def player_div_banner(stat, div, classes, player):
-        new_div = jp.Div(
-            a=div,
-            classes=classes
-        )
-        new_div.label = jp.P(
-            text=f'{stat}: {player[stat]}',
-            a=new_div,
-            classes=classes + "justify-self-center "
-        )
-        return new_div
+def player_div_banner(stat, dict, div, classes):
+    if stat == 'Food':
+        value = len(dict[stat])
+    else:
+        value = dict[stat]
+    new_div = jp.Div(
+        a=div,
+        classes=classes
+    )
+    new_div.label = jp.P(
+        text=f'{stat}: ',
+        a=new_div,
+        classes=classes + "justify-self-center inline-block "
+    )
+    new_div.value = jp.P(
+        text=f'{value}',
+        a=new_div,
+        classes=classes + "justify-self-center inline-block "
+    )
+    return new_div
 
 
 def lib_select(div, change, classes):
@@ -134,7 +156,7 @@ def lib_option(text, value, text_div):
 )
 
 
-def create_menu_button(div, text, display, click, classes=button_menu):
+def create_menu_button(div, text, click, display, classes=button_menu):
     button = create_button(div, text, click, classes)
     button.display = display
     return button

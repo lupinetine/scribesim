@@ -208,7 +208,7 @@ vegetable = [
     'cayenne pepper',
     'radicchio',
     'rhubarb',
-    'beetroot (UK) beet (US)',
+    'beetroot',
     'carrot',
     'celeriac',
     'corms',
@@ -248,7 +248,7 @@ vegetable = [
     'tomato',
     'watercress'
 ]
-pastries = [
+pastry_base = [
     'pie',
     'cake',
     'cheesecake',
