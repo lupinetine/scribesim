@@ -167,21 +167,19 @@ def buy_menu(self, msg):
         self.market,
         [7, 18]
     )
-    self.display.buy_paper = buy_menu_button_maker(
+    self.display.supplies = shop_button(
         self.display,
-        "Buy Paper @ $10/100 sheets",
-        buy_desk_item,
-        "Paper",
-        10,
-        100
+        'Writing Shop',
+        visit_writing,
+        self.writing,
+        [8, 17]
     )
-    self.display.buy_ink = buy_menu_button_maker(
+    self.display.bookshop = shop_button(
         self.display,
-        "Buy Ink @ $5/50ml",
-        buy_desk_item,
-        "Ink",
-        5,
-        50
+        'Bookshop',
+        visit_bookshop,
+        self.bookshop,
+        [8, 17]
     )
 
     self.display.options = ut.new_div(self.display)
