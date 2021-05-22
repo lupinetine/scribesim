@@ -1,4 +1,5 @@
 import datetime
+import book
 import justpy as jp
 
 # CLASSES CSS #
@@ -83,6 +84,14 @@ def input_number(div, max, change, classes=input_class):
         classes=classes
     )
 
+def populate_library():
+    library = []
+    for _ in range(5):
+        library.append(book.create_book())
+    return library
+
+def new_name():
+    return book.gen_author()
 
 def new_webpage(): return jp.WebPage(delete_flag=True)
 

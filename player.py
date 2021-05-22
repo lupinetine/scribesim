@@ -1,20 +1,12 @@
 import random
 import datetime
-import book
-
-
-def populate_library():
-    library = []
-    for i in range(5):
-        library.append(book.create_book())
-    return library
-
+import utilities as ut
 
 def new_player():
     return {
-        'Name': book.gen_author(),
+        'Name': ut.new_name(),
         'Job': "Aspiring Author",
-        'Library': populate_library(),
+        'Library': ut.populate_library(),
         'Desk': {
             'Paper': {
                 'Name': 'Standard Paper',

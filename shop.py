@@ -26,6 +26,20 @@ def create_market_dictionary():
         'Stocked?': False
     }
 
+
+def create_writing_dictionary():
+    return {
+        'Stocks': [],
+        'Stocked?': False
+    }
+
+
+def create_bookshop_dictionary():
+    return {
+        'Stocks': ut.populate_library(),
+        'Stocked?': True
+    }
+
 def create_fruit_list():
     return create_food_list(lists.fruit)
 
@@ -133,14 +147,6 @@ def visit_market(self, msg):
 
 
 def buy_menu(self, msg):
-
-    def buy_menu_button_maker(div, text, function, stat, cost, qty):
-        button = ut.create_button(div, text, function)
-        button.stat = stat
-        button.cost = cost
-        button.qty = qty
-        button.desk = self.desk
-        return button
 
     def shop_button(div, text, function, stock, hours):
         b = ut.create_button(div, text, function)
