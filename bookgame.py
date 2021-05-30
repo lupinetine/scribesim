@@ -68,7 +68,7 @@ def main_menu_maker(webpage, desk_display):
 
     main_desk.button_area.buy = main_menu_button_maker(
         main_desk.button_area,
-        "Buy",
+        "Visit",
         shop.buy_menu,
         main_desk.text_area
     )

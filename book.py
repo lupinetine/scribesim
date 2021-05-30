@@ -29,7 +29,7 @@ def make_sentence(model, test_output=True):
 def scramble_authors():
     author_generated_list = open('./authors_random', 'a')
     author_core = make_markov_model("./authors.core", 1)
-    for i in range(20000):
+    for _ in range(20000):
         author_generated_list.write(make_sentence(author_core) + "\n")
     author_generated_list.close()
     pass
@@ -83,7 +83,7 @@ def gen_genre():
 
 
 def gen_words():
-    return random.randrange(190, 1300)
+    return random.randrange(190, 8000)
 
 
 def gen_type(num_words):
