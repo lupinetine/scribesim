@@ -2,6 +2,10 @@ import datetime
 import book
 import justpy as jp
 
+### Debug libraries ### 
+import icecream as ic
+import pdb;
+
 # CLASSES CSS #
 base_class = "text-white rounded text-center "
 base_class_dark = "text-indigo rounded text-center "
@@ -150,20 +154,26 @@ def lib_option(text, value, text_div):
         text_div=text_div
     )
 
-def store_display(self, restock_function, display_function):
-    update_time(30, self.header, self.player)
-    self.display.options.delete()
-    market_div = new_div(self.display.options)
-    market_div.display = new_div(market_div)
-    print(market_div)
+def store_display(self, display_function):
+    if self.player['Time'].hour in range(self.hours[0], self.hours[1]):
+        display_function(self.div, self)    
+
+
+def stock_shelves(self, restock_function):
     if self.player['Time'].hour < 9 and self.stocks['Stocked?'] is False:
         restock_function()
         self.stocks['Stocked?'] = True
     elif self.player['Time'].hour > 16 and self.stocks['Stocked?'] is True:
         self.stocks['Stocked?'] = False
-    if self.player['Time'].hour in range(self.hours[0], self.hours[1]):    
-        display_function(market_div, self)    
+
+
+def store_div(self):
+    update_time(30, self.header, self.player)
+    self.display.options.delete()
+    market_div = new_div(self.display.options)
+    market_div.display = new_div(market_div)  
     return market_div
+
 
 def create_buy_button(div, text, click, item, stocks, info_text, classes=button_menu):
     b = create_button(div, text, click)

@@ -26,27 +26,26 @@ def create_food_list(input_list):
 def buy_food(self, msg):
     if self.player['Money'] >= self.dict['Price']:
         self.player['Stocks']['Food'].append(self.dict)
-        self.stocks.remove(self.dict)
+        self.stocks['Stocks'].remove(self.dict)
         ut.update_money_banner(self.dict['Price'], self.header, self.player)
         ut.update_food_banner(self.header, self.player)
-    print('display')
-    for i in self.components():
-        print(i)
-    ic.ic(display_market(self.div, self))
+    print(self.stocks)
+
+    display_market(self.div, self)
     pass
 
 
 def display_market(div, self):
+    print(self.stocks)
     div.delete()
-    print(self.stocks['Stocks'])
+    print(div)
     for i in self.stocks['Stocks']:
-        print(i)
         div.i = ut.create_buy_button(
             div,
             f'Buy {i["Name"]}',
             buy_food,
             i,
-            self.stocks['Stocks'],
+            self.stocks,
             (
                 f'Restores {i["Restore"]} '
                 f'for ${i["Price"]}'
@@ -91,5 +90,9 @@ def visit_market(self, msg):
         for _ in range(random.randrange(4, 20)):
             self.stocks['Stocks'].append(stock_food(choose_produce()))
     
-    market_div = ut.store_display(self, restock_produce, display_market)
+ 
+    self.div = ut.store_div(self)
+    ic.ic(self.div)
+    ut.stock_shelves(self, restock_produce)
+    ut.store_display(self, display_market)
 
