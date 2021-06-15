@@ -68,12 +68,13 @@ def main_menu_maker(webpage, desk_display):
 
     main_desk.button_area.buy = main_menu_button_maker(
         main_desk.button_area,
-        "Buy",
+        "Visit",
         shop.buy_menu,
         main_desk.text_area
     )
     main_desk.button_area.buy.market = shop.create_market_dictionary()
- 
+    main_desk.button_area.buy.writing = shop.create_writing_dictionary()
+    main_desk.button_area.buy.bookshop = shop.create_bookshop_dictionary()
     main_desk.button_area.transcribe = main_menu_button_maker(
         main_desk.button_area,
         "Transcribe",

@@ -1,5 +1,10 @@
 import datetime
+import book
 import justpy as jp
+
+### Debug libraries ### 
+import icecream as ic
+import pdb;
 
 # CLASSES CSS #
 base_class = "text-white rounded text-center "
@@ -83,6 +88,18 @@ def input_number(div, max, change, classes=input_class):
         classes=classes
     )
 
+def populate_library():
+    library = []
+    for _ in range(5):
+        library.append(new_book())
+    return library
+
+def new_book(): return book.create_book()
+
+def book_type(words): return book.gen_type(words)
+
+def new_name(): return book.gen_author()
+
 
 def new_webpage(): return jp.WebPage(delete_flag=True)
 
@@ -98,24 +115,6 @@ def desk_item(desk_div, header_text, item_entry):
                             classes=base_class,
                             text=f'{k}: {v}')
     return new_div
-
-
-def new_div(div, classes=base_class):
-    return jp.Div(a=div, classes=classes)
-
-
-def new_para(div, classes=base_class):
-    return jp.P(a=div, classes=classes)
-
-
-def text_div(div, text, classes=base_class):
-    return jp.Div(a=div, text=text, classes=classes)
-
-
-def transcript_div(main_div, text):
-    div = jp.Div(a=main_div)
-    div.text = text
-    return div
 
 
 def player_div_banner(stat, dict, div, classes):
@@ -150,11 +149,40 @@ def lib_select(div, change, classes):
 
 def lib_option(text, value, text_div):
     return jp.Option(
-    text=text,
-    value=value,
-    text_div=text_div
-)
+        text=text,
+        value=value,
+        text_div=text_div
+    )
 
+def store_display(self, display_function):
+    if self.player['Time'].hour in range(self.hours[0], self.hours[1]):
+        display_function(self.div, self)    
+
+
+def stock_shelves(self, restock_function):
+    if self.player['Time'].hour < 9 and self.stocks['Stocked?'] is False:
+        restock_function()
+        self.stocks['Stocked?'] = True
+    elif self.player['Time'].hour > 16 and self.stocks['Stocked?'] is True:
+        self.stocks['Stocked?'] = False
+
+
+def store_div(self):
+    update_time(30, self.header, self.player)
+    self.display.options.delete()
+    market_div = new_div(self.display.options)
+    market_div.display = new_div(market_div)  
+    return market_div
+
+
+def create_buy_button(div, text, click, item, stocks, info_text, classes=button_menu):
+    b = create_button(div, text, click)
+    b.dict = item
+    b.stocks = stocks
+    b.div = div
+    b.info = new_para(b, 'text-xs ')
+    b.info.text = info_text
+    return b
 
 def create_menu_button(div, text, click, display, classes=button_menu):
     button = create_button(div, text, click, classes)
@@ -172,3 +200,21 @@ def create_empty_button(div, text, classes=button_menu):
     button = jp.Button(a=div, classes=classes)
     button.label = jp.P(a=button, text=text)
     return button
+
+
+def new_div(div, classes=base_class):
+    return jp.Div(a=div, classes=classes)
+
+
+def new_para(div, classes=base_class):
+    return jp.P(a=div, classes=classes)
+
+
+def text_div(div, text, classes=base_class):
+    return jp.Div(a=div, text=text, classes=classes)
+
+
+def transcript_div(main_div, text):
+    div = jp.Div(a=main_div)
+    div.text = text
+    return div
